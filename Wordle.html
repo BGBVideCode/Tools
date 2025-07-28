@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Wordle - Design Lady LLC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-purple: #4A00B0; /* Slightly darker, richer purple */
+            --primary-pink: #E91E63;   /* More vibrant pink */
+            --primary-dark: #1A0033;   /* Very dark for contrast */
+            --neutral-white: #FFFFFF;
+            --neutral-light: #F0F4F8;  /* Softer light background */
+            --neutral-dark: #2C3E50;   /* Darker text for readability */
+            --neutral-medium: #7F8C8D; /* Medium grey for secondary text */
+            --neutral-border: #BDC3C7; /* Lighter border for subtle definition */
+            --correct: #27AE60;        /* Vibrant green */
+            --present: #F39C12;        /* Warm orange */
+            --absent: #95A5A6;         /* Softer grey */
+            --key-bg: #ECF0F1;         /* Light grey for keys */
+            --key-border: #BDC3C7;
+            --message-bg: rgba(0, 0, 0, 0.85); /* Darker, more opaque for messages */
+            --results-bg: #FFFFFF;
+            --results-shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--neutral-light) 0%, var(--neutral-white) 100%);
+            color: var(--neutral-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+            padding: 1.5rem 1rem; /* Increased padding around the whole body */
+        }
+
+        .header {
+            color: var(--primary-purple); /* Changed text color to purple */
+            padding: 1.8rem 1rem 0.8rem; /* Adjusted vertical padding, especially bottom */
+            text-align: center;
+            width: 100%;
+            max-width: 600px; /* Max width for header */
+            margin-bottom: 1 rem; /* Increased margin */
+        }
+
+        .header h1 {
+            font-size: 2.5rem; /* Larger title */
+            font-weight: 800; /* Bolder */
+            margin-bottom: 0.2rem; /* Tightened margin */
+            letter-spacing: 2px; /* More prominent letter spacing */
+        }
+
+        .header p {
+            font-size: 1.1rem; /* Slightly larger subtitle */
+            opacity: 0.95;
+            line-height: 1.2; /* Tightened line height */
+        }
+
+        .main-container {
+            max-width: 600px; /* Aligned with header max-width */
+            width: 100%;
+            padding: 0 1rem; /* Adjusted padding, removed vertical padding as sections have their own */
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem; /* Consistent spacing between sections */
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 1.5rem; /* More padding */
+            /* Removed background, border-radius, box-shadow, border */
+        }
+
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat + .stat {
+            border-left: 1px solid var(--neutral-border);
+        }
+
+        .stat-value {
+            font-size: 2rem; /* Larger stat values */
+            font-weight: 800; /* Bolder */
+            color: var(--primary-purple);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-label {
+            font-size: 0.95rem; /* Slightly larger labels */
+            color: var(--neutral-medium);
+            text-transform: uppercase;
+            letter-spacing: 1px; /* More prominent letter spacing */
+        }
+
+        .hint-section {
+            padding: 0; /* Removed padding from the container itself */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem; /* Increased gap */
+        }
+
+        .hint-button {
+            background: var(--primary-pink);
+            color: var(--neutral-white);
+            border: none;
+            padding: 1rem 2rem; /* More padding */
+            border-radius: 12px; /* More rounded */
+            font-weight: 700; /* Bolder */
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* More modern ease */
+            font-size: 1.05rem; /* Slightly larger font */
+            box-shadow: 0 5px 10px rgba(233, 30, 99, 0.35); /* Stronger pink shadow */
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Increased gap for icon */
+        }
+
+        .hint-button:hover {
+            background: #d81b60;
+            transform: translateY(-3px); /* Lift effect */
+            box-shadow: 0 8px 16px rgba(233, 30, 99, 0.45);
+        }
+
+        .hint-button:disabled {
+            background: var(--neutral-border);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .hint-text {
+            margin-top: 0.8rem; /* Adjusted margin */
+            padding: 1.2rem 1.5rem;
+            background: var(--neutral-light); /* Kept subtle background for hint text */
+            border-radius: 12px;
+            border-left: 6px solid var(--primary-pink); /* Thicker border */
+            font-style: italic;
+            color: var(--neutral-dark);
+            text-align: center;
+            max-width: 100%;
+            opacity: 0;
+            transform: translateY(15px); /* Start slightly below */
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out; /* Longer animation */
+            line-height: 1.6; /* Better line height for readability */
+            font-size: 0.95rem;
+        }
+
+        .hint-text.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 12px; /* Slightly larger gap */
+            padding: 1.5rem;
+            /* Removed background, border-radius, box-shadow, border */
+        }
+
+        .word-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px; /* Slightly larger gap */
+        }
+
+        .letter-box {
+            width: 100%;
+            height: 70px; /* Slightly taller boxes */
+            border: 2px solid var(--neutral-border);
+            border-radius: 12px; /* More rounded */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem; /* Larger font */
+            font-weight: 800; /* Bolder */
+            text-transform: uppercase;
+            color: var(--neutral-dark);
+            background: var(--neutral-white);
+            transition: all 0.2s ease-out;
+            perspective: 1000px;
+        }
+
+        /* Letter box animations */
+        .letter-box.filled {
+            border-color: var(--primary-purple);
+            background: var(--neutral-white);
+            animation: popIn 0.1s ease-out;
+        }
+
+        .letter-box.correct {
+            background: var(--correct);
+            border-color: var(--correct);
+            color: var(--neutral-white);
+            animation: flip 0.6s forwards;
+        }
+
+        .letter-box.present {
+            background: var(--present);
+            border-color: var(--present);
+            color: var(--neutral-white);
+            animation: flip 0.6s forwards;
+        }
+
+        .letter-box.absent {
+            background: var(--absent);
+            border-color: var(--absent);
+            color: var(--neutral-white);
+            animation: flip 0.6s forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes flip {
+            0% { transform: rotateX(0deg); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0deg); }
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px; /* Consistent gap */
+            max-width: 600px; /* Aligned with main-container */
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.2rem;
+            /* Removed background, border-radius, box-shadow, border */
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px; /* Slightly larger gap for keys */
+        }
+
+        .key {
+            background: var(--key-bg);
+            border: 1px solid var(--key-border);
+            border-radius: 10px; /* More rounded keys */
+            color: var(--neutral-dark);
+            cursor: pointer;
+            font-weight: 700; /* Bolder */
+            font-size: 1.05rem; /* Slightly larger key text */
+            padding: 1rem 0.7rem; /* Adjusted padding */
+            min-width: 42px; /* Wider keys */
+            text-transform: uppercase;
+            transition: all 0.15s ease-out;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); /* Subtle key shadow */
+        }
+
+        .key:hover {
+            background: var(--neutral-border);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .key:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .key.wide {
+            min-width: 80px; /* Wider Enter/Back keys */
+            font-size: 0.95rem;
+        }
+
+        .key.correct {
+            background: var(--correct);
+            color: var(--neutral-white);
+            border-color: var(--correct);
+        }
+
+        .key.present {
+            background: var(--present);
+            color: var(--neutral-white);
+            border-color: var(--present);
+        }
+
+        .key.absent {
+            background: var(--absent);
+            color: var(--neutral-white);
+            border-color: var(--absent);
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7); /* Start smaller */
+            background: var(--message-bg);
+            color: var(--neutral-white);
+            padding: 1.5rem 3rem; /* More padding */
+            border-radius: 12px;
+            font-weight: 700; /* Bolder */
+            font-size: 1.25rem; /* Larger message text */
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); /* Stronger shadow */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out, visibility 0s linear 0.4s;
+        }
+
+        .message.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+
+        .new-game-btn {
+            background: var(--primary-purple);
+            color: var(--neutral-white);
+            border: none;
+            padding: 1.3rem 2.8rem; /* More padding */
+            border-radius: 12px;
+            font-weight: 700; /* Bolder */
+            cursor: pointer;
+            font-size: 1.15rem; /* Larger font */
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin: 2rem auto; /* More margin */
+            display: block;
+            box-shadow: 0 5px 12px rgba(74, 0, 176, 0.35); /* Purple shadow */
+        }
+
+        .new-game-btn:hover {
+            background: #3a0090;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(74, 0, 176, 0.45);
+        }
+
+        /* Results Screen Styling */
+        .results-screen {
+            /* Kept background and border-radius */
+            background: var(--results-bg);
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Softened shadow */
+            /* Removed border */
+            padding: 2.5rem;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            margin-top: 2.5rem; /* Space from header */
+        }
+
+        .results-screen.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .results-screen h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary-purple);
+            margin-bottom: 0.5rem;
+        }
+
+        .results-screen p {
+            font-size: 1.1rem;
+            color: var(--neutral-dark);
+            line-height: 1.6;
+        }
+
+        .results-screen .score-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-pink);
+            margin: 1rem 0;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .results-screen .word-reveal {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--correct);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+            .header {
+                padding: 1.2rem 0.8rem 0.5rem; /* Adjusted padding for mobile */
+                margin-bottom: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            .main-container {
+                padding: 0 0.5rem;
+                gap: 1.2rem;
+            }
+            
+            .letter-box {
+                height: 58px;
+                font-size: 1.7rem;
+            }
+            
+            .key {
+                min-width: 35px;
+                padding: 0.8rem 0.5rem;
+                font-size: 0.95rem;
+            }
+
+            .key.wide {
+                min-width: 65px;
+                font-size: 0.85rem;
+            }
+
+            .game-stats {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.6rem;
+            }
+
+            .stat-label {
+                font-size: 0.85rem;
+            }
+
+            .hint-button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .hint-text {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .new-game-btn {
+                padding: 1.1rem 2.2rem;
+                font-size: 1.05rem;
+                margin: 1.5rem auto;
+            }
+
+            .message {
+                padding: 1.2rem 2rem;
+                font-size: 1.1rem;
+            }
+
+            .results-screen {
+                padding: 1.5rem;
+                gap: 1rem;
+            }
+
+            .results-screen h2 {
+                font-size: 1.8rem;
+            }
+
+            .results-screen p {
+                font-size: 1.0rem;
+            }
+
+            .results-screen .score-value {
+                font-size: 2.5rem;
+            }
+
+            .results-screen .word-reveal {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Guess the A11y Wordle</h1>
+        <!-- <p>Guess the 5-letter accessibility term!</p>-->
+    </header>
+
+    <main class="main-container">
+        <!-- Game elements container -->
+        <div id="game-elements">
+            <div class="game-stats">
+                <div class="stat">
+                    <div class="stat-value" id="timer">00:00</div>
+                    <div class="stat-label">Time</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="attempts">0/6</div>
+                    <div class="stat-label">Attempts</div>
+                </div>
+                <!-- Removed Hints Left stat -->
+                <div class="stat">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">Score</div>
+                    <br/>
+                </div>
+            </div>
+
+            <div class="hint-section">
+                <button class="hint-button" id="hint-btn" aria-describedby="hint-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/><path d="M11 17v5"/><path d="M12 18v4"/></svg>
+                    Get Hint
+                </button>
+                <div class="hint-text" id="hint-text" style="display: none;" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="game-board" id="game-board" role="grid" aria-label="Wordle game board">
+                <!-- Game board will be generated by JavaScript -->
+            </div>
+
+            <div class="keyboard" id="keyboard" role="group" aria-label="Virtual keyboard">
+                <!-- Keyboard will be generated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="results-screen" class="results-screen" style="display: none;">
+            <h2 id="results-title"></h2>
+            <p id="results-word"></p>
+            <p>Time Taken: <span id="results-time"></span> seconds</p>
+            <p id="results-hint-status"></p>
+            <div class="score-value" id="final-score">0</div>
+            <button class="new-game-btn" id="new-game-btn-results">
+                Play Again
+            </button>
+        </div>
+    </main>
+
+    <div class="message" id="message" role="alert" aria-live="assertive"></div>
+
+    <script>
+        class AccessibilityWordle {
+            constructor() {
+                this.words = [
+                    'AUDIO', 'FOCUS', 'LABEL', 'ROLES', 'SCOPE',
+                    'MODAL', 'FORMS', 'LINKS', 'IMAGE', 'TABLE',
+                    'SOUND', 'COLOR', 'TOUCH', 'VOICE', 'BLIND',
+                    'FONTS', 'SCALE', 'PAUSE', 'TIMER', 'ALERT'
+                ];
+                
+                this.hints = {
+                    'AUDIO': 'Sound content that needs captions or transcripts for accessibility',
+                    'FOCUS': 'Visual indicator showing which element is currently selected for keyboard interaction',
+                    'LABEL': 'Text that describes the purpose of a form control or interface element',
+                    'ROLES': 'ARIA attribute that defines what an element is or does',
+                    'SCOPE': 'HTML attribute that specifies which cells a header applies to in a table',
+                    'MODAL': 'Dialog box that appears on top of main content and requires user interaction',
+                    'FORMS': 'Interactive elements that collect user input and data',
+                    'LINKS': 'Clickable elements that navigate to other pages or sections',
+                    'IMAGE': 'Visual content that needs alternative text for screen readers',
+                    'TABLE': 'Structured data presentation requiring proper headers and captions',
+                    'SOUND': 'Audio feedback that needs visual alternatives for deaf users',
+                    'COLOR': 'Visual information that needs alternatives for colorblind users',
+                    'TOUCH': 'Interaction method requiring adequate target sizes and spacing',
+                    'VOICE': 'Audio content requiring captions or transcripts',
+                    'BLIND': 'Users who rely on screen readers and alternative navigation methods',
+                    'FONTS': 'Typography choices that affect readability and accessibility',
+                    'SCALE': 'Ability to resize interface elements for better visibility',
+                    'PAUSE': 'Control to stop automatic content for users who need more time',
+                    'TIMER': 'Time-based content that may need extensions or alternatives',
+                    'ALERT': 'Important message that announces urgent information to users'
+                };
+
+                this.currentWord = '';
+                this.currentRow = 0;
+                this.currentCol = 0;
+                this.gameOver = false;
+                this.hintUsedInGame = false; // Track if any hint was used for scoring
+                this.startTime = null;
+                this.timerInterval = null;
+                this.score = 0; // Initialize score to 0 only once per session
+
+                // Scoring constants
+                this.WIN_BASE_SCORE = 1000;
+                this.TIME_PENALTY_PER_SECOND = 5; // Points deducted per second
+                this.HINT_PENALTY = 200; // Points deducted for using a hint
+                
+                this.initGame();
+                this.setupEventListeners();
+            }
+
+            initGame() {
+                this.currentWord = this.words[Math.floor(Math.random() * this.words.length)];
+                this.currentRow = 0;
+                this.currentCol = 0;
+                this.gameOver = false;
+                this.hintUsedInGame = false; // Reset hint usage for new game
+                this.startTime = Date.now();
+                // Removed: this.score = 0; -- Score will now accumulate across games within a session
+
+                this.createBoard();
+                this.createKeyboard();
+                this.updateStats();
+                this.startTimer();
+                
+                document.getElementById('hint-btn').disabled = false;
+                
+                // Hide results screen and show game elements
+                document.getElementById('game-elements').style.display = 'block';
+                document.getElementById('results-screen').style.display = 'none';
+                document.getElementById('results-screen').classList.remove('show');
+
+                const hintTextElement = document.getElementById('hint-text');
+                hintTextElement.textContent = '';
+                hintTextElement.classList.remove('show');
+                hintTextElement.style.display = 'none';
+            }
+
+            createBoard() {
+                const board = document.getElementById('game-board');
+                board.innerHTML = '';
+                
+                for (let i = 0; i < 6; i++) {
+                    const row = document.createElement('div');
+                    row.className = 'word-row';
+                    row.setAttribute('role', 'row');
+                    row.setAttribute('aria-label', `Row ${i + 1}`);
+                    
+                    for (let j = 0; j < 5; j++) {
+                        const box = document.createElement('div');
+                        box.className = 'letter-box';
+                        box.setAttribute('role', 'gridcell');
+                        box.setAttribute('aria-label', `Letter ${j + 1}`);
+                        box.id = `box-${i}-${j}`;
+                        row.appendChild(box);
+                    }
+                    
+                    board.appendChild(row);
+                }
+            }
+
+            createKeyboard() {
+                const keyboard = document.getElementById('keyboard');
+                keyboard.innerHTML = '';
+                const rows = [
+                    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+                    ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACK']
+                ];
+
+                rows.forEach(row => {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'keyboard-row';
+                    
+                    row.forEach(key => {
+                        const keyButton = document.createElement('button');
+                        keyButton.className = key.length > 1 ? 'key wide' : 'key';
+                        keyButton.textContent = key === 'BACK' ? '⌫' : key;
+                        keyButton.setAttribute('aria-label', key === 'BACK' ? 'Backspace' : key);
+                        keyButton.onclick = () => this.handleKeyPress(key);
+                        keyButton.id = `key-${key}`;
+                        rowDiv.appendChild(keyButton);
+                    });
+                    
+                    keyboard.appendChild(rowDiv);
+                });
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (this.gameOver) return;
+                    
+                    const key = e.key.toUpperCase();
+                    if (key === 'ENTER') {
+                        this.handleKeyPress('ENTER');
+                    } else if (key === 'BACKSPACE') {
+                        this.handleKeyPress('BACK');
+                    } else if (key.match(/[A-Z]/) && key.length === 1) {
+                        this.handleKeyPress(key);
+                    }
+                });
+
+                document.getElementById('hint-btn').onclick = () => this.showHint();
+                document.getElementById('new-game-btn-results').onclick = () => this.initGame();
+            }
+
+            handleKeyPress(key) {
+                if (this.gameOver) return;
+
+                const keyElement = document.getElementById(`key-${key}`);
+                if (keyElement) {
+                    keyElement.classList.add('active');
+                    setTimeout(() => {
+                        keyElement.classList.remove('active');
+                    }, 100);
+                }
+
+                if (key === 'ENTER') {
+                    this.submitWord();
+                } else if (key === 'BACK') {
+                    this.deleteLetter();
+                } else if (this.currentCol < 5) {
+                    this.addLetter(key);
+                }
+            }
+
+            addLetter(letter) {
+                const box = document.getElementById(`box-${this.currentRow}-${this.currentCol}`);
+                box.textContent = letter;
+                box.classList.add('filled');
+                box.setAttribute('aria-label', `Letter ${this.currentCol + 1}: ${letter}`);
+                this.currentCol++;
+            }
+
+            deleteLetter() {
+                if (this.currentCol > 0) {
+                    this.currentCol--;
+                    const box = document.getElementById(`box-${this.currentRow}-${this.currentCol}`);
+                    box.textContent = '';
+                    box.classList.remove('filled');
+                    box.setAttribute('aria-label', `Letter ${this.currentCol + 1}: empty`);
+                }
+            }
+
+            submitWord() {
+                if (this.currentCol !== 5) {
+                    this.showMessage('Word must be 5 letters long!');
+                    return;
+                }
+
+                const guess = this.getCurrentWord();
+                this.checkWord(guess);
+                
+                if (guess === this.currentWord) {
+                    this.endGame(true);
+                } else if (this.currentRow === 5) {
+                    this.endGame(false);
+                } else {
+                    this.currentRow++;
+                    this.currentCol = 0;
+                    this.updateStats();
+                }
+            }
+
+            getCurrentWord() {
+                let word = '';
+                for (let i = 0; i < 5; i++) {
+                    const box = document.getElementById(`box-${this.currentRow}-${i}`);
+                    word += box.textContent;
+                }
+                return word;
+            }
+
+            checkWord(guess) {
+                const wordArray = this.currentWord.split('');
+                const guessArray = guess.split('');
+                const letterCount = {};
+                
+                wordArray.forEach(letter => {
+                    letterCount[letter] = (letterCount[letter] || 0) + 1;
+                });
+
+                for (let i = 0; i < 5; i++) {
+                    const box = document.getElementById(`box-${this.currentRow}-${i}`);
+                    const letter = guessArray[i];
+                    
+                    if (letter === wordArray[i]) {
+                        box.classList.add('correct');
+                        this.updateKeyColor(letter, 'correct');
+                        letterCount[letter]--;
+                    }
+                }
+
+                for (let i = 0; i < 5; i++) {
+                    const box = document.getElementById(`box-${this.currentRow}-${i}`);
+                    const letter = guessArray[i];
+                    
+                    setTimeout(() => {
+                        if (!box.classList.contains('correct')) {
+                            if (letterCount[letter] > 0) {
+                                box.classList.add('present');
+                                this.updateKeyColor(letter, 'present');
+                                letterCount[letter]--;
+                            } else {
+                                box.classList.add('absent');
+                                this.updateKeyColor(letter, 'absent');
+                            }
+                        }
+                        box.setAttribute('aria-label', `Letter ${i + 1}: ${letter}, ${box.className.includes('correct') ? 'correct position' : box.className.includes('present') ? 'wrong position' : 'not in word'}`);
+                    }, i * 100);
+                }
+            }
+
+            updateKeyColor(letter, status) {
+                const key = document.getElementById(`key-${letter}`);
+                if (!key) return;
+                
+                if (key.classList.contains('correct')) return;
+                if (key.classList.contains('present') && status === 'absent') return;
+                
+                key.classList.remove('correct', 'present', 'absent');
+                key.classList.add(status);
+            }
+
+            showHint() {
+                this.hintUsedInGame = true; // Mark that a hint was used for scoring
+                const hintTextElement = document.getElementById('hint-text');
+                const hintText = this.hints[this.currentWord];
+                
+                hintTextElement.textContent = hintText;
+                hintTextElement.style.display = 'block';
+                setTimeout(() => {
+                    hintTextElement.classList.add('show');
+                }, 10);
+                
+                this.updateStats();
+            }
+
+            startTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+
+                this.timerInterval = setInterval(() => {
+                    if (this.gameOver) {
+                        clearInterval(this.timerInterval);
+                        return;
+                    }
+                    const elapsed = Date.now() - this.startTime;
+                    const minutes = Math.floor(elapsed / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    document.getElementById('timer').textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+
+            endGame(won) {
+                this.gameOver = true;
+                clearInterval(this.timerInterval);
+                
+                const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000); // Time in seconds
+
+                // Calculate Score for the current game
+                let currentGameObjectScore = 0;
+                if (won) {
+                    currentGameObjectScore = this.WIN_BASE_SCORE;
+                    currentGameObjectScore -= Math.floor(elapsedTime * this.TIME_PENALTY_PER_SECOND);
+                    if (this.hintUsedInGame) {
+                        currentGameObjectScore -= this.HINT_PENALTY;
+                    }
+                }
+                
+                // Add current game's score to the total session score
+                this.score += Math.max(0, currentGameObjectScore); // Ensure score added is not negative
+
+                // Show results screen
+                this.showResultsScreen(won, this.score, elapsedTime); // Pass the total score
+            }
+
+            updateStats() {
+                document.getElementById('attempts').textContent = `${this.currentRow}/6`;
+                document.getElementById('score').textContent = this.score; // Update score display with total session score
+            }
+
+            showMessage(text) {
+                const message = document.getElementById('message');
+                message.textContent = text;
+                message.classList.add('show');
+                
+                setTimeout(() => {
+                    message.classList.remove('show');
+                    setTimeout(() => {
+                        message.style.visibility = 'hidden';
+                    }, 300);
+                }, 3000);
+            }
+
+            showResultsScreen(won, finalScore, elapsedTime) {
+                // Hide game elements
+                document.getElementById('game-elements').style.display = 'none';
+
+                // Populate results screen
+                document.getElementById('results-title').textContent = won ? 'Congratulations!' : 'Game Over!';
+                document.getElementById('results-word').textContent = `The word was: "${this.currentWord}"`;
+                document.getElementById('results-time').textContent = elapsedTime;
+                document.getElementById('results-hint-status').textContent = this.hintUsedInGame ? 'Hint used: Yes (Score Penalty Applied)' : 'Hint used: No';
+                document.getElementById('final-score').textContent = finalScore; // Display the total session score
+
+                // Show results screen with animation
+                const resultsScreen = document.getElementById('results-screen');
+                resultsScreen.style.display = 'flex'; // Use flex to center content
+                setTimeout(() => {
+                    resultsScreen.classList.add('show');
+                }, 10);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new AccessibilityWordle();
+        });
+    </script>
+</body>
+</html>

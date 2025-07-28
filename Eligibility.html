@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand X Eligibility Assessment</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- React and ReactDOM CDNs -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel Standalone for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- html2canvas and jspdf CDNs for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            padding: 2rem 20%;
+            margin: 0;
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                padding: 2rem 10%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem 5%;
+            }
+        }
+        h1 {
+            color: #6366f1;
+        }
+
+       /* h1, h2, h3, h4, h5, h6 {
+            color: #6366f1;
+        }*/
+        /* Custom radio/checkbox styling for better accessibility */
+        input[type="radio"],
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        input[type="radio"] {
+            border-radius: 50%;
+        }
+
+        input[type="checkbox"] {
+            border-radius: 4px;
+        }
+
+        input[type="radio"]:checked {
+            background-color: #6366f1;
+            border-color: #6366f1;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #6366f1;
+            border-color: #6366f1;
+        }
+
+        input[type="radio"]:checked::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        input[type="checkbox"]:checked::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 24 24\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M9.00002 16.17L4.83002 12L3.41002 13.41L9.00002 19L21 7.00002L19.59 5.59002L9.00002 16.17Z\' fill=\'white\'/%3E%3C/svg%3E');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* Focus styles for accessibility */
+        input[type="radio"]:focus,
+        input[type="checkbox"]:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+            border-color: #6366f1;
+        }
+
+        /* Option styling */
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            background-color: white;
+        }
+
+        .option-label:hover {
+            background-color: #f8faff;
+        }
+
+        .option-label.selected {
+            background-color: #eef2ff;
+            border-color: #6366f1;
+        }
+
+        /* Card styling */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        /* Button styles */
+        .btn-primary {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #5338ea;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5b6373;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary:disabled {
+            background-color: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #6366f1;
+            transition: width 0.3s ease;
+        }
+
+        /* PDF specific styles */
+        .pdf-content {
+            background: white;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+            .pdf-hide {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Define the questions and their logic
+        const questions = [
+          {
+            id: 1,
+            text: "Are you currently receiving treatment for your condition?",
+            type: "single",
+            category: "Current Treatment Status",
+            options: [
+              { text: "Yes, I am currently on treatment", answerText: "On treatment" },
+              { text: "No, I am not currently on treatment", answerText: "Not on treatment" },
+              { text: "I have tried treatments before but stopped", answerText: "Tried but stopped" },
+            ],
+          },
+          {
+            id: 2,
+            text: "Which of the following medications have you tried? (Select all that apply)",
+            type: "multiple",
+            category: "Medications Tried",
+            options: [
+              { text: "Medication A", answerText: "Medication A" },
+              { text: "Medication B", answerText: "Medication B" },
+              { text: "Medication C", answerText: "Medication C" },
+              { text: "Medication D", answerText: "Medication D" },
+              { text: "None of the above", answerText: "None of the above" },
+            ],
+          },
+          {
+            id: 3,
+            text: "How would you describe your response to previous treatments?",
+            type: "single",
+            category: "Response to Previous Treatments",
+            options: [
+              { text: "Very effective", answerText: "Very effective" },
+              { text: "Somewhat effective", answerText: "Somewhat effective" },
+              { text: "Not effective", answerText: "Not effective" },
+              { text: "I experienced significant side effects", answerText: "Significant side effects" },
+              { text: "Not applicable", answerText: "Not applicable" },
+            ],
+          },
+          {
+            id: 4,
+            text: "How would you rate the current severity of your symptoms?",
+            type: "single",
+            category: "Symptom Severity",
+            options: [
+              { text: "Mild", answerText: "Mild" },
+              { text: "Moderate", answerText: "Moderate" },
+              { text: "Severe", answerText: "Severe" },
+              { text: "Very severe", answerText: "Very severe" },
+            ],
+          },
+          {
+            id: 5,
+            text: "Which of the following best describes your current situation? (Select all that apply)",
+            type: "multiple",
+            category: "Current Situation",
+            options: [
+              { text: "I work full-time", answerText: "Work full-time" },
+              { text: "I have difficulty with daily activities", answerText: "Difficulty with daily activities" },
+              { text: "I exercise regularly", answerText: "Exercise regularly" },
+              { text: "I have other health conditions", answerText: "Other health conditions" },
+              { text: "I prefer oral medications", answerText: "Prefer oral medications" },
+            ],
+          },
+          {
+            id: 6,
+            text: "What are your main concerns about starting a new treatment? (Select all that apply)",
+            type: "multiple",
+            category: "Concerns about New Treatment",
+            options: [
+              { text: "Side effects", answerText: "Side effects" },
+              { text: "Cost/Insurance coverage", answerText: "Cost/Insurance coverage" },
+              { text: "Injection requirements", answerText: "Injection requirements" },
+              { text: "Frequency of dosing", answerText: "Frequency of dosing" },
+              { text: "Effectiveness", answerText: "Effectiveness" },
+            ],
+          },
+        ];
+
+        // Define the possible results
+        const results = {
+          potentially_eligible: {
+            title: "Your Assessment Results",
+            message: "Based on your responses, Brand X may be a suitable treatment option for you.",
+            nextSteps: [
+                "Schedule an appointment with your healthcare provider",
+                "Discuss Brand X as a potential treatment option",
+                "Review your complete medical history",
+                "Discuss potential benefits and risks"
+            ],
+          },
+        };
+
+        const App = () => {
+          const [currentView, setCurrentView] = useState('landing');
+          const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+          const [assessmentResult, setAssessmentResult] = useState(null);
+          const [userAnswers, setUserAnswers] = useState({});
+          const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+          const currentQuestion = questions[currentQuestionIndex];
+          const totalQuestions = questions.length;
+          const progress = currentView === 'results' ? 100 : ((currentQuestionIndex) / totalQuestions) * 100;
+
+          // Handler for single-choice questions
+          const handleSingleAnswer = (questionId, option) => {
+            setUserAnswers(prevAnswers => ({
+              ...prevAnswers,
+              [questionId]: option.answerText,
+            }));
+          };
+
+          // Handler for multiple-choice questions
+          const handleMultipleAnswer = (questionId, option) => {
+            setUserAnswers(prevAnswers => {
+              const currentSelections = prevAnswers[questionId] || [];
+              const isSelected = currentSelections.includes(option.answerText);
+
+              if (isSelected) {
+                return {
+                  ...prevAnswers,
+                  [questionId]: currentSelections.filter(item => item !== option.answerText),
+                };
+              } else {
+                return {
+                  ...prevAnswers,
+                  [questionId]: [...currentSelections, option.answerText],
+                };
+              }
+            });
+          };
+
+          const handleNext = () => {
+            const currentAnswer = userAnswers[currentQuestion.id];
+            if (currentQuestion.type === 'single' && !currentAnswer) {
+                alert("Please select an option to continue.");
+                return;
+            }
+            if (currentQuestion.type === 'multiple' && (!currentAnswer || currentAnswer.length === 0)) {
+                alert("Please select at least one option to continue.");
+                return;
+            }
+
+            if (currentQuestionIndex < totalQuestions - 1) {
+              setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+            } else {
+              setAssessmentResult('potentially_eligible');
+              setCurrentView('results');
+            }
+          };
+
+          const handlePrevious = () => {
+            if (currentQuestionIndex > 0) {
+              setCurrentQuestionIndex(prevIndex => prevIndex - 1);
+            } else {
+              setCurrentView('landing');
+            }
+          };
+
+          const startAssessment = () => {
+            setCurrentView('disclaimer');
+          };
+
+          const acceptDisclaimer = () => {
+            setCurrentView('assessment');
+            setCurrentQuestionIndex(0);
+            setUserAnswers({});
+            setAssessmentResult(null);
+          };
+
+          const resetAssessment = () => {
+            setCurrentView('landing');
+            setCurrentQuestionIndex(0);
+            setAssessmentResult(null);
+            setUserAnswers({});
+          };
+
+          const handleGeneratePdf = async () => {
+            setIsGeneratingPdf(true);
+            const input = document.getElementById('pdf-content');
+
+            if (!input) {
+              console.error("PDF content element not found.");
+              setIsGeneratingPdf(false);
+              return;
+            }
+
+            try {
+              if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+                console.error("Required libraries not loaded.");
+                return;
+              }
+
+              const canvas = await html2canvas(input, { 
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+              });
+              
+              const imgData = canvas.toDataURL('image/png');
+              const pdf = new window.jspdf.jsPDF({
+                orientation: 'p',
+                unit: 'pt',
+                format: 'a4'
+              });
+
+              const pdfWidth = pdf.internal.pageSize.getWidth();
+              const pdfHeight = pdf.internal.pageSize.getHeight();
+              const imgWidth = canvas.width;
+              const imgHeight = canvas.height;
+              const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+              const imgX = (pdfWidth - imgWidth * ratio) / 2;
+              const imgY = 30;
+
+              pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+              pdf.save('BrandX_Doctor_Discussion_Guide.pdf');
+            } catch (error) {
+              console.error("Error generating PDF:", error);
+            } finally {
+              setIsGeneratingPdf(false);
+            }
+          };
+
+          const handleEmailResults = () => {
+            const subject = "Brand X Eligibility Assessment Results";
+            let body = "Hello,\n\nPlease find my Brand X Eligibility Assessment results below:\n\n";
+
+            body += "Your Responses:\n";
+            questions.forEach(q => {
+                const answer = userAnswers[q.id];
+                if (answer) {
+                    body += `${q.text}: ${Array.isArray(answer) ? answer.join(', ') : answer}\n`;
+                }
+            });
+            body += "\n";
+
+            if (assessmentResult) {
+              const finalResult = results[assessmentResult];
+              body += "Assessment Recommendation:\n";
+              body += `${finalResult.message}\n`;
+              body += `\nRecommended Next Steps:\n`;
+              finalResult.nextSteps.forEach((step, index) => {
+                body += `${index + 1}. ${step}\n`;
+              });
+              body += "\n";
+            }
+
+            body += "Disclaimer: This assessment is for informational purposes only and does not constitute medical advice. Only a qualified healthcare provider can determine if Brand X is appropriate for your specific condition.\n\n";
+            body += "Generated by Brand X Eligibility Assessment Tool";
+
+            const encodedBody = encodeURIComponent(body);
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodedBody}`;
+          };
+
+          // Landing View
+          if (currentView === 'landing') {
+            return (
+              <div className="w-full max-w-6xl mx-auto">
+                {/* Hero Section */}
+                <div className="text-center mb-16">
+                    <div className="w-20 h-20 mx-auto mb-6 bg-indigo-100 rounded-full flex items-center justify-center">
+                      <svg className="w-28 h-28 mx-auto mb-6 text-indigo-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89543 4 3 4.89543 3 6V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M9 10H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M9 14H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8 2V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M16 2V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    </div>
+                    <h1 className="text-5xl font-bold text-indigo-600 mb-4">
+                        Brand X Eligibility Assessment
+                    </h1>
+                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                        Discover if Brand X might be the right treatment option for you with our personalized assessment tool
+                    </p>
+                </div>
+
+                {/* Feature Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                    <div className="feature-card">
+                        <div className="w-12 h-12 mx-auto mb-4 text-blue-500">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 className="font-semibold text-lg mb-2">Quick & Easy</h3>
+                        <p className="text-sm text-gray-600">Takes only 5-7 minutes to complete</p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="w-12 h-12 mx-auto mb-4 text-green-500">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 className="font-semibold text-lg mb-2">Personalized</h3>
+                        <p className="text-sm text-gray-600">Results tailored to your specific situation</p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="w-12 h-12 mx-auto mb-4 text-purple-500">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 className="font-semibold text-lg mb-2">Doctor Guide</h3>
+                        <p className="text-sm text-gray-600">Get a discussion guide for your doctor visit</p>
+                    </div>
+                    <div className="feature-card">
+                        <div className="w-12 h-12 mx-auto mb-4 text-red-500">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v3h8z"/>
+                            </svg>
+                        </div>
+                        <h3 className="font-semibold text-lg mb-2">Private & Secure</h3>
+                        <p className="text-sm text-gray-600">Your information is kept confidential</p>
+                    </div>
+                </div>
+
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    <div className="card">
+                        <h2 className="text-2xl font-semibold mb-4">What You'll Learn</h2>
+                        <ul className="space-y-3">
+                            <li className="flex items-start">
+                                <svg className="w-5 h-5 text-green-500 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                </svg>
+                                <span>Whether Brand X might be suitable for your condition</span>
+                            </li>
+                            <li className="flex items-start">
+                                <svg className="w-5 h-5 text-green-500 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                </svg>
+                                <span>Personalized next steps based on your treatment history</span>
+                            </li>
+                            <li className="flex items-start">
+                                <svg className="w-5 h-5 text-green-500 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                </svg>
+                                <span>Key discussion points to share with your healthcare provider</span>
+                            </li>
+                            <li className="flex items-start">
+                                <svg className="w-5 h-5 text-green-500 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                </svg>
+                                <span>A downloadable guide for your doctor visit</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div className="card bg-gray-50 flex flex-col justify-center items-center text-center">
+                        <h2 className="text-2xl font-semibold mb-4">Ready to get started?</h2>
+                        <p className="text-gray-600 mb-6">
+                            Answer {totalQuestions} simple questions about your condition and treatment history
+                        </p>
+                        <button onClick={startAssessment} className="btn-primary">
+                            Start Assessment
+                        </button>
+                    </div>
+                </div>
+
+                {/* Disclaimer */}
+                <div className="card bg-yellow-50 border-l-4 border-yellow-400">
+                    <p className="font-semibold text-yellow-800 mb-2">Important:</p>
+                    <p className="text-yellow-700">
+                        This assessment is for informational purposes only and does not replace medical advice. Always consult with your healthcare provider before making any treatment decisions.
+                    </p>
+                </div>
+              </div>
+            );
+          }
+
+          // Disclaimer View
+          if (currentView === 'disclaimer') {
+            return (
+              <div className="w-full max-w-2xl mx-auto">
+                <div className="card">
+                  <h2 className="text-3xl font-bold text-center mb-6">Disclaimer</h2>
+                  <p className="text-gray-700 mb-6 leading-relaxed">
+                    This tool is designed to provide general information about potential eligibility for Brand X based on your responses.
+                    It is not a substitute for professional medical advice, diagnosis, or treatment.
+                    Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition or treatment.
+                    Do not disregard professional medical advice or delay in seeking it because of something you have read on this tool.
+                  </p>
+                  <div className="text-center">
+                    <button onClick={acceptDisclaimer} className="btn-primary">
+                      I Understand, Start Assessment
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          // Assessment View
+          if (currentView === 'assessment') {
+            return (
+              <div className="w-full max-w-4xl mx-auto">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold text-indigo-600 mb-2">
+                        Brand X Eligibility Assessment
+                    </h1>
+                    <p className="text-lg text-gray-600">
+                        Answer a few questions to see if Brand X might be right for you
+                    </p>
+                </div>
+
+                {/* Progress */}
+                <div className="mb-8">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="text-lg font-semibold">Question {currentQuestionIndex + 1} of {totalQuestions}</span>
+                        <span className="text-lg font-semibold">{Math.round(progress)}% Complete</span>
+                    </div>
+                    <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                    </div>
+                </div>
+
+                {/* Question */}
+                <div className="card mb-8">
+                    <h2 className="text-2xl font-medium text-gray-900 mb-6">{currentQuestion?.text}</h2>
+                    <div className="space-y-3">
+                        {currentQuestion?.type === 'single' ? (
+                            currentQuestion.options.map((option, index) => (
+                                <label
+                                    key={index}
+                                    className={`option-label ${userAnswers[currentQuestion.id] === option.answerText ? 'selected' : ''}`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name={`question-${currentQuestion.id}`}
+                                        value={option.answerText}
+                                        checked={userAnswers[currentQuestion.id] === option.answerText}
+                                        onChange={() => handleSingleAnswer(currentQuestion.id, option)}
+                                        className="mr-4"
+                                    />
+                                    <span className="text-lg">{option.text}</span>
+                                </label>
+                            ))
+                        ) : (
+                            currentQuestion.options.map((option, index) => (
+                                <label
+                                    key={index}
+                                    className={`option-label ${userAnswers[currentQuestion.id]?.includes(option.answerText) ? 'selected' : ''}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        name={`question-${currentQuestion.id}`}
+                                        value={option.answerText}
+                                        checked={userAnswers[currentQuestion.id]?.includes(option.answerText) || false}
+                                        onChange={() => handleMultipleAnswer(currentQuestion.id, option)}
+                                        className="mr-4"
+                                    />
+                                    <span className="text-lg">{option.text}</span>
+                                </label>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="flex justify-between">
+                    <button
+                        onClick={handlePrevious}
+                        disabled={currentQuestionIndex === 0}
+                        className={currentQuestionIndex === 0 ? "btn-secondary" : "btn-secondary"}
+                        style={{opacity: currentQuestionIndex === 0 ? 0.5 : 1}}
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Previous
+                    </button>
+                    <button onClick={handleNext} className="btn-primary">
+                        {currentQuestionIndex === totalQuestions - 1 ? 'Get Results' : 'Next'}
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </div>
+              </div>
+            );
+          }
+
+          // Results View
+          if (currentView === 'results') {
+            const finalResult = results[assessmentResult];
+
+            return (
+              <div className="w-full max-w-4xl mx-auto">
+                <div id="pdf-content" className="pdf-content">
+                    {/* Results Icon */}
+                    <div className="text-center mb-8">
+                        <div className="w-20 h-20 mx-auto mb-6 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <svg className="w-10 h-10 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                            </svg>
+                        </div>
+
+                        <h1 className="text-4xl font-bold text-indigo-600 mb-4">
+                            {finalResult.title}
+                        </h1>
+                        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                            {finalResult.message}
+                        </p>
+                    </div>
+
+                    {/* User Responses */}
+                    <div className="card mb-8">
+                        <h2 className="text-2xl font-semibold mb-4">Your Responses:</h2>
+                        <div className="space-y-4">
+                            {questions.map((question) => {
+                                const answer = userAnswers[question.id];
+                                if (!answer) return null;
+                                
+                                return (
+                                    <div key={question.id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                                        <h3 className="font-medium text-gray-900 mb-2">{question.text}</h3>
+                                        <p className="text-gray-700">
+                                            {Array.isArray(answer) ? answer.join(', ') : answer}
+                                        </p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Next Steps */}
+                    <div className="card mb-8">
+                        <h2 className="text-2xl font-semibold mb-4">Recommended Next Steps:</h2>
+                        <ol className="list-decimal list-inside space-y-2 text-lg text-gray-700">
+                            {finalResult.nextSteps.map((step, index) => (
+                                <li key={index}>{step}</li>
+                            ))}
+                        </ol>
+                    </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap justify-center gap-4 mb-8 pdf-hide">
+                  <button
+                    onClick={handleGeneratePdf}
+                    disabled={isGeneratingPdf}
+                    className="btn-primary"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    {isGeneratingPdf ? 'Generating PDF...' : 'Download Doctor Discussion Guide'}
+                  </button>
+                  <button onClick={handleEmailResults} className="btn-primary" style={{backgroundColor: '#3b82f6'}}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    Email Results to Me
+                  </button>
+                </div>
+
+                <div className="text-center pdf-hide">
+                    <button onClick={resetAssessment} className="text-indigo-600 hover:text-indigo-800 font-semibold">
+                        Take Assessment Again
+                    </button>
+                </div>
+              </div>
+            );
+          }
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
