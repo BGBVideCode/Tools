@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrandX® - Innovative Treatment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #7C3AED;
+            --secondary-blue: #2d82b5;
+            --accent-pink: #d6339a;
+            --light-blue: #e8f4f8;
+            --white: #ffffff;
+            --gray-dark: #333333;
+            --gray-medium: #666666;
+            --gray-light: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-dark);
+            background-color: var(--white);
+        }
+
+        /* Skip to main content for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--primary-purple);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 1000;
+            border-radius: 4px;
+        }
+
+        .skip-link:focus {
+            top: 6px;
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-purple);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+
+        .header-top {
+            background: var(--white);
+            padding: 1rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header-top-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 0 1rem;
+        }
+
+        .nav-utility {
+            flex: 1;
+        }
+
+        .nav-utility ul {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-utility a {
+            text-decoration: none;
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-utility a:hover,
+        .nav-utility a:focus {
+            color: var(--primary-purple);
+        }
+
+        .contact-btn-top {
+            background: var(--primary-purple);
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .contact-btn-top:hover,
+        .contact-btn-top:focus {
+            background: var(--secondary-blue);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(30, 96, 145, 0.3);
+            color: white;
+        }
+
+        .header-main {
+            padding: 1.5rem 0;
+            background: var(--white);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .nav-main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-main {
+            display: flex;
+            gap: 0.25 rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .nav-main .nav-link {
+            text-decoration: none;
+            color: var(--gray-dark);
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.2 rem 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.1 rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-main .nav-link:hover,
+        .nav-main .nav-link:focus {
+            color: var(--primary-purple);
+            border-bottom-color: var(--primary-purple);
+        }
+
+        .nav-item-dropdown .nav-link svg {
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item-dropdown:hover .nav-link svg {
+            transform: rotate(180deg);
+        }
+
+        .search-btn {
+            background: transparent;
+            border: none;
+            color: var(--gray-dark);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+
+        .search-btn:hover,
+        .search-btn:focus {
+            background: var(--light-blue);
+            color: var(--primary-purple);
+        }
+
+        /* In-Situ Search Area */
+        .search-area {
+            background: var(--light-blue);
+            padding: 1.5rem 0;
+            border-top: 1px solid #e0e0e0;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.05);
+            display: none; /* Hidden by default */
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .search-area.active {
+            display: block;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .search-area .container {
+            max-width: 900px; /* Adjust max-width for search container */
+            padding: 0 20px;
+        }
+
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--white);
+        }
+
+        .search-title {
+            color: var(--primary-purple);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .close-search {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-medium);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-search:hover {
+            background: var(--white);
+        }
+
+        .search-input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--white);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(30, 96, 145, 0.2);
+        }
+
+        .search-suggestions {
+            margin-bottom: 1.5rem;
+        }
+
+        .suggestion-item {
+            background: var(--white);
+            border: 1px solid var(--light-blue);
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .suggestion-item:hover {
+            background: var(--primary-purple);
+            color: white;
+            border-color: var(--primary-purple);
+        }
+
+        .search-results {
+            margin-top: 1rem;
+        }
+
+        .result-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: var(--white);
+            border: 1px solid var(--light-blue);
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 4px 12px rgba(30, 96, 145, 0.1);
+            border-color: var(--primary-purple);
+        }
+
+        .result-title {
+            color: var(--primary-purple);
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .result-content {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+            color: var(--gray-dark);
+        }
+
+        .result-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-purple);
+            text-decoration: underline;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 3px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0.25rem 0;
+        }
+
+        .result-cta:hover,
+        .result-cta:focus {
+            color: var(--secondary-blue);
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
+        }
+
+        .result-cta-icon {
+            font-size: 1rem;
+            margin-right: 0.25rem;
+        }
+
+        .result-meta {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--light-blue);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-medium);
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid var(--light-blue);
+        }
+
+        .contact-suggestion {
+            background: var(--light-blue);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .contact-link {
+            display: inline-block;
+            background: var(--accent-pink);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .contact-link:hover {
+            background: #e56a2c;
+            transform: translateY(-1px);
+        }
+
+        /* Main Content */
+        main {
+            min-height: calc(100vh - 200px);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--light-blue) 0%, var(--white) 100%);
+            padding: 4rem 0;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            min-height: 500px;
+            padding: 0 1rem;
+        }
+
+        .hero-text {
+            padding: 2rem 0;
+            max-width: 100%;
+        }
+
+        .announcement {
+            background: var(--accent-pink);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 100%;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-purple);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--gray-medium);
+            margin-bottom: 2rem;
+        }
+
+        .hero-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .treatment-callout {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            border-left: 6px solid var(--accent-pink);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .treatment-callout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .callout-badge {
+            background: var(--accent-pink);
+            color: white;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .treatment-option {
+            margin-bottom: 1.5rem;
+        }
+
+        .treatment-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .callout-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-purple);
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .callout-description {
+            font-size: 1rem;
+            color: var(--gray-medium);
+            line-height: 1.5;
+        }
+
+        .treatment-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary-purple);
+            transition: all 0.3s ease;
+        }
+
+        .treatment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .treatment-card.featured {
+            border-left-color: var(--accent-pink);
+            background: linear-gradient(135deg, #fff5f0 0%, white 100%);
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--accent-pink);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-purple);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--gray-medium);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--gray-dark);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.5rem;
+            padding: 0 1rem;
+        }
+
+        .footer-section h3 {
+            color: var(--light-blue);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--light-blue);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 0;
+            }
+
+            .hero-section {
+                padding: 2rem 0;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .treatment-callout {
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .treatment-option {
+                margin-bottom: 1.25rem;
+            }
+
+            .callout-title {
+                font-size: 1.25rem;
+            }
+
+            .callout-description {
+                font-size: 0.9rem;
+            }
+
+            .header-top-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 0;
+            }
+
+            .nav-utility ul {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .nav-main {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 0;
+            }
+
+            .nav-main-container {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 0;
+            }
+
+            .search-area .container {
+                padding: 0 1rem;
+            }
+
+            .contact-btn-top {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .footer-content {
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            .nav-main {
+                gap: 2rem;
+            }
+
+            .nav-utility ul {
+                gap: 2rem;
+            }
+
+            .header-content {
+                padding: 0 0.5rem;
+            }
+
+            .nav-main-container {
+                padding: 0 1rem;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                padding: 0 3rem;
+                max-width: 1400px;
+            }
+
+            .hero-content {
+                padding: 0 2rem;
+                gap: 5rem;
+            }
+
+            .nav-main {
+                gap: 4rem;
+            }
+
+            .nav-utility ul {
+                gap: 3rem;
+            }
+        }
+
+        /* Focus indicators for accessibility */
+        *:focus {
+            outline: 2px solid var(--primary-purple);
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .treatment-card {
+                border: 2px solid var(--gray-dark);
+            }
+            .search-input {
+                border: 2px solid var(--gray-dark);
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header role="banner">
+        <div class="header-top">
+            <div class="container">
+                <div class="header-top-content">
+                    <nav aria-label="Utility navigation" class="nav-utility">
+                        <ul>
+                            <li><a href="#prescribing-information">Prescribing Information</a></li>
+                            <li><a href="#safety-information">Important Safety Information</a></li>
+                            <li><a href="#patient-site">Patient Site</a></li>
+                            <li><a href="#register">Register</a></li>
+                        </ul>
+                    </nav>
+                    
+                    <a href="#contact" class="contact-btn-top">
+                        Contact a Rep
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-main">
+            <div class="container">
+                <div class="header-content">
+                  <!--<img src="brandx-logo.svg"> </a>--> <a href="#" class="logo" aria-label="BrandX Homepage">
+                        <span style="background: var(--primary-purple); color: white; padding: 0.1 rem 0.2 rem; border-radius: 2px;">B</span>
+                        BrandX<sup>®</sup>
+                   
+                    
+                    <nav aria-label="Main navigation" class="nav-main-container">
+                        <ul class="nav-main">
+                            <li class="nav-item-dropdown">
+                                <a href="#about" class="nav-link">
+                                    ABOUT BrandX
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-item-dropdown">
+                                <a href="#efficacy" class="nav-link">
+                                    EFFICACY
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-item-dropdown">
+                                <a href="#safety" class="nav-link">
+                                    SAFETY
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#dosing" class="nav-link">DOSING</a>
+                            </li>
+                            <li class="nav-item-dropdown">
+                                <a href="#access-support" class="nav-link">
+                                    ACCESS & SUPPORT
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-item-dropdown">
+                                <a href="#resources" class="nav-link">
+                                    RESOURCES
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                    </svg>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    
+                    <button class="search-btn" aria-label="Search site" onclick="toggleSearch()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- In-Situ Search Area -->
+        <div class="search-area" id="searchArea" role="search" aria-labelledby="search-title">
+            <div class="container">
+                <div class="search-header">
+                    <h2 id="search-title" class="search-title">Search BrandX Information</h2>
+                    <button class="close-search" onclick="toggleSearch()" aria-label="Close search">×</button>
+                </div>
+                
+                <div class="search-input-group">
+                    <label for="searchInput" class="sr-only">Search query</label>
+                    <input type="text" id="searchInput" class="search-input" 
+                           placeholder="Ask me about BrandX, dosing, side effects, clinical trials..."
+                           oninput="handleSearch(this.value)"
+                           autocomplete="off">
+                </div>
+                
+                <div class="search-suggestions" id="searchSuggestions">
+                    <h3 style="margin-bottom: 1rem; color: var(--gray-dark);">Popular Questions:</h3>
+                    <button class="suggestion-item" onclick="searchFor('dosing instructions')">
+                     What is the recommended dosing for BrandX?
+                    </button>
+                    <button class="suggestion-item" onclick="searchFor('side effects')">
+                     What are the common side effects?
+                    </button>
+                    <button class="suggestion-item" onclick="searchFor('clinical trials')">
+                     What clinical trial data supports BrandX?
+                    </button>
+                    <button class="suggestion-item" onclick="searchFor('patient eligibility')">
+                    Which patients are eligible for BrandX?
+                    </button>
+                    <button class="suggestion-item" onclick="searchFor('drug interactions')">
+                    Are there any drug interactions to consider?
+                    </button>
+                </div>
+                
+                <div class="search-results" id="searchResults"></div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <section class="hero-section" aria-labelledby="hero-title">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <div class="announcement">
+                            NEW INDICATION
+                        </div>
+                        
+                        <h1 id="hero-title" class="hero-title">
+                            Fantastic copy<br>
+                            relating to the<br>
+                            campaign here
+                        </h1>
+                        
+                        <p class="hero-subtitle">
+                            For your patients facing certain progressive conditions or advanced stages of disease.
+                        </p>
+                    </div>
+                    
+                    <div class="hero-visual" aria-label="Treatment options">
+                        <div class="treatment-callout">
+                            <div class="callout-badge">NOW APPROVED</div>
+                            
+                            <div class="treatment-option">
+                                <div class="callout-title">Phase 3: BrandX + Adjunctive Therapy A</div>
+                                <div class="callout-description">
+                                    For patients with advanced disease progression
+                                </div>
+                            </div>
+                            
+                            <div class="treatment-option">
+                                <div class="callout-title">STUDY ALPHA: BrandX + Adjunctive Therapy A + Therapy B</div>
+                                <div class="callout-description">
+                                    For patients with early-stage disease progression
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="treatment-card">
+                            <div class="card-title">STUDY BETA: BrandX + Adjunctive Therapy A</div>
+                            <div class="card-description">
+                                For patients with localized, resistant conditions
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Healthcare Professionals</h3>
+                    <ul>
+                        <li><a href="#prescribing-information">Prescribing Information</a></li>
+                        <li><a href="#safety-information">Safety Information</a></li>
+                        <li><a href="#clinical-trials">Clinical Data</a></li>
+                        <li><a href="#dosing-guidelines">Dosing Guidelines</a></li>
+                        <li><a href="#drug-interactions">Drug Interactions</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Patients & Caregivers</h3>
+                    <ul>
+                        <li><a href="#patient-info">Patient Information</a></li>
+                        <li><a href="#support">Support Programs</a></li>
+                        <li><a href="#side-effects">Side Effects</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>About BrandX</h3>
+                    <ul>
+                        <li><a href="#mechanism-of-action">How BrandX Works</a></li>
+                        <li><a href="#clinical-trials">Clinical Trials</a></li>
+                        <li><a href="#contraindications">Contraindications</a></li>
+                        <li><a href="#faq">Frequently Asked Questions</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Contact & Support</h3>
+                    <ul>
+                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#medical">Medical Information</a></li>
+                        <li><a href="#adverse">Report Adverse Events</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>-->
+
+    <script>
+        // Knowledge base for the intelligent search
+        const knowledgeBase = {
+            'dosing instructions': {
+                title: 'BrandX Dosing Information',
+                content: 'The recommended dose of BrandX is 600 mg (two 300 mg tablets) taken orally twice daily. Take with food. For specific dosing modifications, consult the prescribing information.',
+                cta: {
+                    text: 'View Complete Dosing Guidelines',
+                    link: '#dosing-guidelines',
+                    icon: '📋'
+                }
+            },
+            'side effects': {
+                title: 'Common Side Effects',
+                content: 'The most common adverse reactions (≥10%) were fatigue, extremity pain, and rash. For complete safety information, please see the prescribing information.',
+                cta: {
+                    text: 'View Full Safety Information',
+                    link: '#safety-information',
+                    icon: '⚠️'
+                }
+            },
+            'clinical trials': {
+                title: 'Clinical Trial Data',
+                content: 'BrandX has been studied in multiple Phase 3 trials including STUDY ALPHA (advanced disease), STUDY BETA (resistant conditions), and Phase 3 (various indications). These studies demonstrated significant clinical benefits.',
+                cta: {
+                    text: 'Explore Clinical Data',
+                    link: '#clinical-trials',
+                    icon: '📊'
+                }
+            },
+            'patient eligibility': {
+                title: 'Patient Eligibility Criteria',
+                content: 'BrandX is indicated for patients with certain progressive conditions and advanced stages of disease. Consult prescribing information for complete eligibility criteria.',
+                cta: {
+                    text: 'View Prescribing Information',
+                    link: '#prescribing-information',
+                    icon: '📄'
+                }
+            },
+            'drug interactions': {
+                title: 'Drug Interactions',
+                content: 'BrandX may interact with certain medications. Avoid strong inducers. Consult the prescribing information for complete drug interaction information.',
+                cta: {
+                    text: 'View Drug Interactions Guide',
+                    link: '#drug-interactions',
+                    icon: '🔄'
+                }
+            },
+            'mechanism of action': {
+                title: 'How BrandX Works',
+                content: 'BrandX (darolutamide) is an innovative therapeutic agent that modulates key biological pathways, inhibiting disease progression and improving patient outcomes.',
+                cta: {
+                    text: 'Learn More About MOA',
+                    link: '#mechanism-of-action',
+                    icon: '🔬'
+                }
+            },
+            'contraindications': {
+                title: 'Contraindications',
+                content: 'BrandX is contraindicated in specific patient populations. Please see prescribing information for complete contraindication details.',
+                cta: {
+                    text: 'View Complete Contraindications',
+                    link: '#contraindications',
+                    icon: '🚫'
+                }
+            }
+        };
+
+        const searchArea = document.getElementById('searchArea');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        let searchActive = false; // To track if search is open
+
+        function toggleSearch() {
+            searchActive = !searchActive;
+            if (searchActive) {
+                searchArea.classList.add('active');
+                searchInput.focus();
+                // Removed document.body.style.overflow = 'hidden'; to allow natural page scrolling
+            } else {
+                searchArea.classList.remove('active');
+                searchResults.innerHTML = ''; // Clear results when closing
+                searchInput.value = ''; // Clear input
+                searchSuggestions.style.display = 'block'; // Show suggestions next time it's opened
+                // Removed document.body.style.overflow = 'auto';
+            }
+        }
+
+        function searchFor(query) {
+            searchInput.value = query;
+            handleSearch(query);
+        }
+
+        function handleSearch(query) {
+            if (!query.trim()) {
+                searchResults.innerHTML = '';
+                searchSuggestions.style.display = 'block';
+                return;
+            }
+
+            // Hide initial suggestions when user starts typing
+            searchSuggestions.style.display = 'none';
+
+            // Simple keyword matching
+            const results = [];
+            const queryLower = query.toLowerCase();
+            
+            for (const [key, value] of Object.entries(knowledgeBase)) {
+                if (key.includes(queryLower) || 
+                    value.title.toLowerCase().includes(queryLower) || 
+                    value.content.toLowerCase().includes(queryLower)) {
+                    results.push(value);
+                }
+            }
+
+            if (results.length > 0) {
+                searchResults.innerHTML = `
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary-purple);">Search Results:</h3>
+                    ${results.map(result => `
+                        <div class="result-item">
+                            <div class="result-title">${result.title}</div>
+                            <div class="result-content">${result.content}</div>
+                            ${result.cta ? `
+                                <div class="result-meta">
+                                    <a href="${result.cta.link}" class="result-cta" 
+                                       onclick="return handleCTAClick('${result.cta.text}', '${result.cta.link}', '${query}', event);">
+                                        <span class="result-cta-icon">${result.cta.icon}</span>
+                                        ${result.cta.text}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 0.25rem;">
+                                            <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                    
+                    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--white);">
+                        <h3 style="margin-bottom: 1rem; color: var(--gray-dark);">Other Popular Questions:</h3>
+                        <div style="display: grid; gap: 0.5rem;">
+                            <button class="suggestion-item" onclick="searchFor('dosing instructions')">
+                        What is the recommended dosing for BrandX?
+                            </button>
+                            <button class="suggestion-item" onclick="searchFor('side effects')">
+                             What are the common side effects?
+                            </button>
+                            <button class="suggestion-item" onclick="searchFor('clinical trials')">
+                            What clinical trial data supports BrandX?
+                            </button>
+                            <button class="suggestion-item" onclick="searchFor('patient eligibility')">
+                             Which patients are eligible for BrandX?
+                            </button>
+                            <button class="suggestion-item" onclick="searchFor('drug interactions')">
+                            Are there any drug interactions to consider?
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        <h3 style="color: var(--gray-medium); margin-bottom: 1rem;">No results found</h3>
+                        <p>I couldn't find specific information about "${query}".</p>
+                        <div class="contact-suggestion">
+                            <p><strong>Need more specific information?</strong></p>
+                            <p>Our medical affairs team can provide detailed answers to your questions.</p>
+                            <a href="#contact-form" class="contact-link" onclick="toggleSearch()">
+                                Contact Medical Information
+                            </a>
+                        </div>
+                        
+                        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--white);">
+                            <h3 style="margin-bottom: 1rem; color: var(--gray-dark);">Try These Popular Questions:</h3>
+                            <div style="display: grid; gap: 0.5rem;">
+                                <button class="suggestion-item" onclick="searchFor('dosing instructions')">
+                                What is the recommended dosing for BrandX?
+                                </button>
+                                <button class="suggestion-item" onclick="searchFor('side effects')">
+                                 What are the common side effects?
+                                </button>
+                                <button class="suggestion-item" onclick="searchFor('clinical trials')">
+                                What clinical trial data supports BrandX?
+                                </button>
+                                <button class="suggestion-item" onclick="searchFor('patient eligibility')">
+                                Which patients are eligible for BrandX?
+                                </button>
+                                <button class="suggestion-item" onclick="searchFor('drug interactions')">
+                                Are there any drug interactions to consider?
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Close search with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && searchActive) {
+                toggleSearch();
+            }
+        });
+
+        // Handle Enter key in search input
+        document.getElementById('searchInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                handleSearch(this.value);
+            }
+        });
+
+        // Function to handle CTA clicks with analytics tracking
+        function handleCTAClick(ctaText, destination, searchQuery, event) {
+            event.preventDefault();
+            
+            // This would integrate with your analytics platform
+            console.log('CTA Clicked:', {
+                cta: ctaText,
+                destination: destination,
+                searchQuery: searchQuery,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Show brief confirmation for link
+            const originalContent = event.target.innerHTML;
+            const originalColor = event.target.style.color;
+            event.target.innerHTML = `<span style="color: #28a745;">✓</span> Opening...`;
+            event.target.style.textDecoration = 'none';
+            
+            // Simulate page navigation after brief delay
+            setTimeout(() => {
+                // In a real app, this would navigate to the actual page
+                // Replaced alert with console.log for better UX in an iframe environment
+                console.log(`Navigating to: ${ctaText}\n\nDestination: ${destination}\n\nIn a real implementation, this would take you to the detailed ${ctaText.toLowerCase()} page.`);
+                toggleSearch(); // Close search after simulated navigation
+            }, 800);
+            
+            return false;
+        }
+    </script>
+
+    <style>
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</body>
+</html>
