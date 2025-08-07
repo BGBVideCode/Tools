@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spin to Win: The EVENITY Jackpot</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-dark: #465562;
@@ -208,7 +210,7 @@
         }
 
         .btn-cta {
-            background: linear-gradient(45deg, #ff9800, #ffc066);
+            background: linear-gradient(45deg, #ffb347, #ffcc33);
             font-size: 1.1rem;
             font-weight: 700;
             padding: 1rem 2rem;
@@ -218,7 +220,7 @@
         }
 
         .btn-cta:hover {
-            background: linear-gradient(45deg, #ffc066, #ff9800);
+            background: linear-gradient(45deg, #ffcc33, #ffb347);
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(255, 179, 71, 0.6);
         }
@@ -413,7 +415,7 @@
             </div>
 
             <div class="wildcard-section" id="wildcard-section" style="display: none;">
-                <h3>🎰 Wildcard Challenge</h3>
+                <h3><i class="fas fa-magic"></i> Wildcard Challenge</h3>
                 <div class="wildcard-grid" id="wildcard-grid"></div>
             </div>
         </div>
@@ -466,7 +468,7 @@
             wildcardResults: {},
             startTime: null,
             timerInterval: null,
-            totalElapsedSeconds: 0 // Renamed and simplified the state variable for clarity
+            totalElapsedSeconds: 0 
         };
         
         const elements = {
@@ -495,10 +497,8 @@
             return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
 
-        // Refactored startTimer function to use totalElapsedSeconds
         function startTimer() {
             if (!state.timerInterval) {
-                // Set the startTime based on the current time and any previous elapsed time
                 state.startTime = Date.now() - state.totalElapsedSeconds * 1000;
                 
                 state.timerInterval = setInterval(updateTimer, 1000);
@@ -507,19 +507,16 @@
             }
         }
 
-        // Refactored stopGameTimer function to save totalElapsedSeconds
         function stopGameTimer() {
              if (state.timerInterval) {
                 clearInterval(state.timerInterval);
                 state.timerInterval = null;
-                // Save the total elapsed time when stopping
                 state.totalElapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
                 elements.startTimerBtn.disabled = false;
                 elements.stopTimerBtn.disabled = true;
             }
         }
 
-        // Updated updateTimer to always use startTime to calculate elapsed
         function updateTimer() {
             const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
             elements.timerElement.textContent = `Game Timer: ${formatTime(elapsed)}`;
@@ -543,6 +540,8 @@
                     resultElement.textContent = getRandomItem(dataArray);
                 }, 100);
                 
+                // --- FIX: Remove the 'stopped' class before spinning again
+                reelElement.classList.remove('stopped');
                 reelElement.classList.add('spinning');
                 
                 setTimeout(() => {
@@ -596,12 +595,25 @@
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'wildcard-category';
                 
-                const emoji = category === 'Behavioral Nudges' ? '♟️' :
-                             category === 'Budget Constraints' ? '💸' :
-                             category === 'Channel Restrictions' ? '🚫' : '�';
+                // --- FIX: Updated the icons to use Font Awesome
+                let iconClass;
+                switch(category) {
+                    case 'Behavioral Nudges':
+                        iconClass = 'fas fa-lightbulb';
+                        break;
+                    case 'Budget Constraints':
+                        iconClass = 'fas fa-dollar-sign';
+                        break;
+                    case 'Channel Restrictions':
+                        iconClass = 'fas fa-ban';
+                        break;
+                    case 'Innovation Sparks':
+                        iconClass = 'fas fa-rocket';
+                        break;
+                }
                 
                 categoryDiv.innerHTML = `
-                    <h4>${emoji} ${category}</h4>
+                    <h4><i class="${iconClass}"></i> ${category}</h4>
                     <div class="wildcard-result">Spinning...</div>
                 `;
                 
@@ -617,7 +629,6 @@
             setTimeout(() => {
                 elements.spinWildcardBtn.disabled = false;
                 
-                // Track the 'wildcard_spin' event with the full results
                 trackEvent('wildcard_spin', state.wildcardResults);
             }, categories.length * 700 + 500);
         }
@@ -659,7 +670,7 @@
                 state.currentTactic = null;
                 state.wildcardResults = {};
                 state.startTime = null;
-                state.totalElapsedSeconds = 0; // Reset the total elapsed time
+                state.totalElapsedSeconds = 0; 
                 
                 stopGameTimer();
                 elements.timerElement.textContent = 'Game Timer: 00:00';
@@ -677,7 +688,6 @@
                 elements.startTimerBtn.disabled = false;
                 elements.stopTimerBtn.disabled = true;
                 
-                // Track the 'game_reset' event
                 trackEvent('game_reset');
             });
         }
