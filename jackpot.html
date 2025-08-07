@@ -338,6 +338,14 @@
           100% { transform: rotate(360deg); }
         }
     </style>
+    <!-- Google tag (gtag.js) for analytics tracking -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4GHB5ERCP2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4GHB5ERCP2');
+    </script>
 </head>
 <body>
     <div class="container">
@@ -347,7 +355,6 @@
         </header>
 
         <div class="game-container">
-            <!-- Moved timer and its controls to the top for better visibility -->
             <div class="timer-section">
                 <div class="timer" id="timer">Game Timer: 00:00</div>
                 <div class="timer-controls">
@@ -455,7 +462,7 @@
             timerElement: document.getElementById('timer'),
             reels: [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')],
             startTimerBtn: document.getElementById('start-timer'),
-            stopTimerBtn: document.getElementById('stop-timer') // Added element for stop timer button
+            stopTimerBtn: document.getElementById('stop-timer')
         };
         
         // Utility functions
@@ -470,12 +477,11 @@
         }
 
         function startTimer() {
-            // Only start the timer if it's not already running
             if (!state.startTime) {
                 state.startTime = Date.now();
                 state.timerInterval = setInterval(updateTimer, 1000);
-                elements.startTimerBtn.disabled = true; // Disable start button
-                elements.stopTimerBtn.disabled = false; // Enable stop button
+                elements.startTimerBtn.disabled = true;
+                elements.stopTimerBtn.disabled = false;
             }
         }
 
@@ -483,8 +489,8 @@
              if (state.timerInterval) {
                 clearInterval(state.timerInterval);
                 state.timerInterval = null;
-                elements.startTimerBtn.disabled = false; // Enable start button
-                elements.stopTimerBtn.disabled = true; // Disable stop button
+                elements.startTimerBtn.disabled = false;
+                elements.stopTimerBtn.disabled = true;
             }
         }
 
@@ -492,6 +498,17 @@
             if (state.startTime) {
                 const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
                 elements.timerElement.textContent = `Game Timer: ${formatTime(elapsed)}`;
+            }
+        }
+        
+        /**
+         * Tracks a custom event using Google Analytics.
+         * @param {string} eventName The name of the event to track.
+         * @param {object} eventParams Optional object containing event parameters.
+         */
+        function trackEvent(eventName, eventParams = {}) {
+            if (typeof gtag === 'function') {
+                gtag('event', eventName, eventParams);
             }
         }
 
@@ -530,6 +547,13 @@
             await spinReel(elements.reels[2], elements.tacticResult, gameData.tacticTypes);
             state.currentTactic = elements.tacticResult.textContent;
             
+            // Track the 'main_spin' event with parameters
+            trackEvent('main_spin', {
+                'segment': state.currentSegment,
+                'barrier': state.currentBarrier,
+                'tactic_type': state.currentTactic
+            });
+            
             elements.spinMainBtn.disabled = false;
             elements.spinWildcardBtn.disabled = false;
         }
@@ -537,6 +561,7 @@
         // Wildcard spin function (FIXED)
         function spinWildcard() {
             elements.spinWildcardBtn.disabled = true;
+            
             const categories = Object.keys(gameData.wildcards);
             elements.wildcardGrid.innerHTML = '';
             state.wildcardResults = {};
@@ -567,6 +592,9 @@
             
             setTimeout(() => {
                 elements.spinWildcardBtn.disabled = false;
+                
+                // Track the 'wildcard_spin' event with the full results
+                trackEvent('wildcard_spin', state.wildcardResults);
             }, categories.length * 700 + 500);
         }
         
@@ -608,7 +636,7 @@
                 state.wildcardResults = {};
                 state.startTime = null;
                 
-                stopGameTimer(); // Use the new stop function
+                stopGameTimer();
                 elements.timerElement.textContent = 'Game Timer: 00:00';
                 
                 elements.segmentResult.textContent = 'Click spin to start!';
@@ -621,8 +649,11 @@
                 
                 elements.spinMainBtn.disabled = false;
                 elements.spinWildcardBtn.disabled = false;
-                elements.startTimerBtn.disabled = false; // Re-enable the timer button on reset
-                elements.stopTimerBtn.disabled = true; // Make sure stop button is disabled
+                elements.startTimerBtn.disabled = false;
+                elements.stopTimerBtn.disabled = true;
+                
+                // Track the 'game_reset' event
+                trackEvent('game_reset');
             });
         }
         
@@ -631,7 +662,7 @@
         elements.spinWildcardBtn.addEventListener('click', spinWildcard);
         elements.resetBtn.addEventListener('click', resetGame);
         elements.startTimerBtn.addEventListener('click', startTimer);
-        elements.stopTimerBtn.addEventListener('click', stopGameTimer); // Added listener for stop button
+        elements.stopTimerBtn.addEventListener('click', stopGameTimer);
 
         // Keyboard accessibility
         document.addEventListener('keydown', (e) => {
