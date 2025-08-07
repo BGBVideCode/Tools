@@ -72,6 +72,8 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
             width: 100%;
+            /* NEW: Add a transition for the light effect */
+            transition: box-shadow 0.3s ease-out;
         }
 
         .timer-section {
@@ -157,6 +159,11 @@
         .reel.stopped .reel-item {
             animation: none;
             filter: blur(0);
+        }
+
+        /* UPDATED: Light effect class is now for the entire game container */
+        .game-container.light-effect {
+            box-shadow: 0 0 15px 5px var(--primary-orange), 0 0 20px 10px rgba(255, 247, 0, 0.5);
         }
 
         @keyframes reelSpin {
@@ -496,6 +503,8 @@
         };
         
         const elements = {
+            // NEW: Add a reference to the entire game container
+            gameContainer: document.querySelector('.game-container'),
             segmentResult: document.getElementById('segment-result'),
             barrierResult: document.getElementById('barrier-result'),
             tacticResult: document.getElementById('tactic-result'),
@@ -572,6 +581,7 @@
                     clearInterval(interval);
                     reelElement.classList.remove('spinning');
                     reelElement.classList.add('stopped');
+                    
                     resolve();
                 }, 1500); // Animation duration
             });
@@ -593,6 +603,12 @@
             // Spin tactic reel
             await spinReel(elements.reels[2], elements.tacticResult, gameData.tacticTypes);
             state.currentTactic = elements.tacticResult.textContent;
+            
+            // NEW: Add a light effect to the entire game container after all reels stop
+            elements.gameContainer.classList.add('light-effect');
+            setTimeout(() => {
+                elements.gameContainer.classList.remove('light-effect');
+            }, 500);
             
             // Track the 'main_spin' event with parameters
             trackEvent('main_spin', {
@@ -703,7 +719,13 @@
                 elements.barrierResult.textContent = 'Click spin to start!';
                 elements.tacticResult.textContent = 'Click spin to start!';
                 
-                elements.reels.forEach(reel => reel.classList.remove('stopped'));
+                elements.reels.forEach(reel => {
+                    reel.classList.remove('stopped');
+                    // REMOVED: Old light effect logic from reels
+                });
+                
+                // NEW: Ensure the game container light effect is removed on reset
+                elements.gameContainer.classList.remove('light-effect');
                 
                 elements.wildcardSection.style.display = 'none';
                 
