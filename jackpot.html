@@ -27,6 +27,7 @@
             font-family: 'Inter', sans-serif;
            /* background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);*/
             background-image: url("EvenityBG.png");
+            background-color: #465562; /* Fallback color */
             min-height: 100vh;
             color: var(--primary-dark);
             overflow-x: hidden;
@@ -293,7 +294,9 @@
         
         @media (max-width: 768px) {
             .slot-machine {
-                grid-template-columns: 1fr 1fr 1fr;
+                /* STACK THE REELS VERTICALLY ON MOBILE */
+                grid-template-columns: 1fr;
+                gap: 1.5rem; /* Add some space between the stacked reels */
             }
             
             .control-buttons {
