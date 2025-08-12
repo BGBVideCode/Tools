@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections Puzzle</title>
+    <style>
+        /* Modern, clean aesthetic with WCAG AA compliant colors */
+        :root {
+            --bg-color: #0f172a;
+            --container-bg: #1e293b;
+            --text-color: #f3f4f6;
+            --tile-bg: #334155;
+            --tile-hover: #475569;
+            --tile-selected: #7e22ce;
+            --tile-correct: #16a34a;
+            --tile-incorrect: #dc2626;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-strong: rgba(0, 0, 0, 0.3);
+            --focus-outline-color: #6366f1;
+            --border-radius: 8px;
+            --gap: 0.75rem;
+            --transition-duration: 0.2s;
+        }
+
+        /* Basic reset and font setup */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            text-rendering: optimizeLegibility;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            overflow: auto;
+        }
+
+        /* Main game container layout */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .game-header {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        p.instructions {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        /* Tile grid layout */
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--gap);
+        }
+
+        /* Tile styling (buttons) */
+        .tile {
+            min-height: 80px;
+            background-color: var(--tile-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px -1px var(--shadow-light), 0 2px 4px -2px var(--shadow-strong);
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.5rem;
+            transition: transform var(--transition-duration) ease,
+                        background-color var(--transition-duration) ease,
+                        box-shadow var(--transition-duration) ease;
+        }
+
+        .tile:hover:not(.correct):not(.selected) {
+            transform: translateY(-2px);
+            background-color: var(--tile-hover);
+        }
+
+        /* Accessible focus indicator (WCAG AA requirement) */
+        .tile:focus-visible {
+            outline: 3px solid var(--focus-outline-color);
+            outline-offset: 2px;
+        }
+
+        /* Visually distinct tile states */
+        .tile.selected {
+            background-color: var(--tile-selected);
+            transform: scale(0.95);
+            box-shadow: none;
+            outline: none; /* remove focus on selected tiles for clarity */
+        }
+
+        .tile.correct {
+            background-color: var(--tile-correct);
+            font-weight: bold;
+            cursor: default;
+            animation: fadeIn 0.5s ease-out;
+            transform: none;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .tile.incorrect {
+            animation: shake 0.5s ease-in-out;
+            background-color: var(--tile-incorrect);
+        }
+        
+        .tile.correct-grouped {
+            background-color: var(--tile-correct);
+            font-weight: bold;
+            cursor: default;
+            transform: none;
+            box-shadow: none;
+            outline: none;
+        }
+
+        /* Grouped tiles display */
+        .grouped-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background-color: var(--container-bg);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .group-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .group-category {
+            font-weight: bold;
+            color: var(--tile-correct);
+        }
+
+        .group-terms {
+            opacity: 0.8;
+        }
+
+        /* Control buttons section */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .controls-left {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .controls-right {
+            text-align: right;
+            flex-grow: 1;
+        }
+
+        .status-message {
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        
+        /* New Game button styling (hidden) */
+        .btn-new-game {
+            display: none; /* Hide the button */
+        }
+        
+        /* New Game button styling (to be used later if we add it back) */
+        .btn-new-game-visible {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all var(--transition-duration) ease;
+            background-color: var(--tile-bg);
+            color: var(--text-color);
+            box-shadow: 0 2px 4px var(--shadow-strong);
+        }
+
+        .btn-new-game-visible:hover {
+            transform: translateY(-2px);
+            background-color: var(--tile-hover);
+            box-shadow: 0 4px 6px var(--shadow-strong);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .tile { font-size: 0.9rem; min-height: 70px; }
+            .puzzle-grid { gap: 0.5rem; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .controls-left { justify-content: center; }
+            .controls-right { text-align: center; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        /* Respect users who prefer reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .tile { transition: none; }
+            .tile:hover:not(.correct):not(.selected) { transform: none; }
+            .btn-new-game-visible:hover { transform: none; }
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes shake { from { transform: none; } to { transform: none; } }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="game-container" role="main" aria-label="Connections Puzzle Game">
+        <header class="game-header">
+            <h1>Connections</h1>
+            <p class="instructions">Find the four groups of four.</p>
+        </header>
+
+        <div class="puzzle-grid" role="grid" aria-label="Puzzle terms grid">
+            <!-- Tiles will be dynamically inserted here -->
+        </div>
+
+        <div class="status-panel" role="status" aria-live="polite">
+            <div class="grouped-container" id="found-groups">
+                <!-- Found groups will be dynamically inserted here -->
+            </div>
+            <div class="controls">
+                <div class="controls-left">
+                    <p id="guesses-remaining" aria-live="polite">Guesses remaining: 4</p>
+                </div>
+                <div class="controls-right">
+                    <!-- The new game button has been removed from the UI -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Game content and state
+        const groups = [
+            { category: "WCAG Principles", terms: ["Perceivable", "Operable", "Understandable", "Robust"] },
+            { category: "Assistive Technologies", terms: ["Screen Reader", "Braille Display", "Switch Device", "Magnifier"] },
+            { category: "Accessibility in Code", terms: ["ARIA", "Alt Text", "Tabindex", "Semantic HTML"] },
+            { category: "Cognitive Accessibility", terms: ["Dyslexia", "Memory", "Focus", "Readability"] }
+        ];
+
+        let allTerms = groups.flatMap(group => group.terms);
+        let shuffledTerms = [];
+        let selectedTiles = [];
+        let guessesRemaining = 4;
+        let foundGroups = [];
+        let isGameOver = false;
+
+        // DOM Elements
+        const puzzleGrid = document.querySelector('.puzzle-grid');
+        const guessesEl = document.getElementById('guesses-remaining');
+        const foundGroupsEl = document.getElementById('found-groups');
+        
+        // Helper to shuffle an array
+        const shuffleArray = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        };
+
+        // Initialize or reset the game
+        const initGame = () => {
+            isGameOver = false;
+            selectedTiles = [];
+            guessesRemaining = 4;
+            foundGroups = [];
+
+            // Shuffle terms and render tiles
+            shuffledTerms = shuffleArray([...allTerms]);
+            puzzleGrid.innerHTML = shuffledTerms.map(term => `
+                <button class="tile" aria-pressed="false" aria-label="${term}">${term}</button>
+            `).join('');
+
+            // Reset UI
+            guessesEl.textContent = `Guesses remaining: ${guessesRemaining}`;
+            foundGroupsEl.innerHTML = '';
+            
+            // Add event listeners to tiles
+            const tiles = document.querySelectorAll('.tile');
+            tiles.forEach(tile => {
+                tile.addEventListener('click', handleTileClick);
+            });
+        };
+
+        // Handle a tile click event
+        const handleTileClick = (e) => {
+            const tile = e.target;
+            
+            // Do not allow interaction with already correct tiles
+            if (tile.classList.contains('correct')) return;
+
+            if (selectedTiles.includes(tile)) {
+                // Deselect tile
+                const index = selectedTiles.indexOf(tile);
+                if (index > -1) {
+                    selectedTiles.splice(index, 1);
+                }
+                tile.classList.remove('selected');
+                tile.setAttribute('aria-pressed', 'false');
+            } else if (selectedTiles.length < 4) {
+                // Select tile
+                selectedTiles.push(tile);
+                tile.classList.add('selected');
+                tile.setAttribute('aria-pressed', 'true');
+            }
+
+            // Automatically submit the guess if 4 tiles are selected
+            if (selectedTiles.length === 4) {
+                handleSubmit();
+            }
+        };
+        
+        // Check if selected terms form a valid group
+        const isCorrectGuess = (selectedTerms) => {
+            for (const group of groups) {
+                const isMatch = group.terms.every(term => selectedTerms.includes(term));
+                if (isMatch) {
+                    return group;
+                }
+            }
+            return null;
+        };
+
+        // Handle submission of a guess
+        const handleSubmit = () => {
+            if (selectedTiles.length !== 4) return;
+
+            const selectedTerms = selectedTiles.map(tile => tile.textContent);
+            const correctGroup = isCorrectGuess(selectedTerms);
+            
+            if (correctGroup) {
+                // Correct guess logic
+                foundGroups.push(correctGroup);
+                
+                // Visually update tiles
+                selectedTiles.forEach(tile => {
+                    tile.classList.remove('selected');
+                    tile.classList.add('correct');
+                    tile.setAttribute('aria-pressed', 'true');
+                    tile.setAttribute('disabled', 'true');
+                    tile.removeEventListener('click', handleTileClick);
+                });
+                
+                // Announce success
+                const announcement = `Found a group! ${correctGroup.category}: ${selectedTerms.join(', ')}`;
+                updateScreenReaderStatus(announcement);
+                
+                // Update found groups UI
+                const groupHtml = `
+                    <div class="group-row">
+                        <div class="group-category">${correctGroup.category}</div>
+                        <div class="group-terms">${selectedTerms.join(', ')}</div>
+                    </div>
+                `;
+                foundGroupsEl.insertAdjacentHTML('beforeend', groupHtml);
+                
+                // Check win condition
+                if (foundGroups.length === 4) {
+                    showWin();
+                }
+                
+                // Clear selection
+                selectedTiles = [];
+            } else {
+                // Incorrect guess logic
+                guessesRemaining--;
+                guessesEl.textContent = `Guesses remaining: ${guessesRemaining}`;
+                
+                // Animate incorrect guess
+                selectedTiles.forEach(tile => {
+                    tile.classList.add('incorrect');
+                    setTimeout(() => {
+                        tile.classList.remove('incorrect');
+                        tile.classList.remove('selected');
+                        tile.setAttribute('aria-pressed', 'false');
+                    }, 500);
+                });
+                
+                // Announce error
+                const announcement = `Incorrect guess. ${guessesRemaining} guesses remaining.`;
+                updateScreenReaderStatus(announcement);
+
+                // Clear selection
+                selectedTiles = [];
+                
+                // Check game over condition
+                if (guessesRemaining === 0) {
+                    showGameOver();
+                }
+            }
+        };
+
+        // Update screen reader status with a message
+        const updateScreenReaderStatus = (message) => {
+            const statusEl = document.querySelector('[aria-live="polite"]');
+            if (statusEl) {
+                statusEl.textContent = message;
+                setTimeout(() => {
+                    // Reset after a delay to allow the message to be read
+                    statusEl.textContent = '';
+                }, 1000);
+            }
+        };
+
+        // Display game over message
+        const showGameOver = () => {
+            isGameOver = true;
+            updateScreenReaderStatus('Game Over!');
+            alert('Game Over! You ran out of guesses.');
+            // This is a simple alert; for a better UX, a modal could be used.
+        };
+
+        // Display win message
+        const showWin = () => {
+            isGameOver = true;
+            updateScreenReaderStatus('Congratulations! You solved all the connections.');
+            alert('Congratulations! You solved all the connections.');
+            // Again, a modal would be a better UX than alert.
+        };
+
+        // Keyboard navigation and submission
+        document.addEventListener('keydown', (e) => {
+            const focusedElement = document.activeElement;
+            if (isGameOver) return;
+            
+            // Tab key logic is handled by the browser
+            
+            // Enter or Space key to select/deselect a tile
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (focusedElement && focusedElement.classList.contains('tile')) {
+                    focusedElement.click();
+                    e.preventDefault(); // Prevent default space bar action (scrolling)
+                }
+            }
+        });
+
+        // Initial game start
+        initGame();
+    </script>
+</body>
+</html>
