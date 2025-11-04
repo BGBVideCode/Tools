@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Updated title -->
+    <title>Name Randomizer</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Set up Tailwind configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        // Custom colors
+                        'av-red': '#B91C1C', // Deep Red
+                        'av-gold': '#FACC15', // Gold/Yellow
+                        'av-blue': '#2563EB', // Royal Blue
+                        'av-silver': '#CBD5E1', // Silver/Light Gray
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Use Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            /* Fallback color, then image. 'fixed' keeps it from scrolling. */
+            background: #0C1427 url('bg.png') no-repeat center center fixed; 
+            background-size: cover;
+        }
+        /* Custom styles for smoother transition and shadow effects */
+        .result-card {
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth transition */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<!-- Removed bg-gray-900 -->
+<body class="min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <div id="app" class="w-full max-w-lg">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-av-silver tracking-tight">
+                <!-- <span class="text-av-red">Name</span>--> Select a name
+            </h1>
+            <p class="text-gray-400 mt-2"><!--Find your next legendary name.--></p>
+        </header>
+
+        <!-- Result Display Card -->
+        <div id="result-card" class="result-card bg-gray-800 p-8 rounded-xl border-t-8 border-av-red transition duration-500 ease-in-out transform hover:scale-[1.01]">
+            
+            <!-- Removed h-5 class from this paragraph, ADDED w-full -->
+            <p id="category-display" class="text-center text-sm font-semibold tracking-widest uppercase text-gray-400 mb-4 transition-colors duration-500 w-full">
+                <!-- Removed "Click the Button Below" -->
+            </p>
+
+            <!-- Reverted container height from h-64 to h-32 -->
+            <div class="flex flex-col items-center justify-center h-32">
+                <!-- Changed default size from text-7xl back to text-6xl -->
+                <!-- ADDED w-full to prevent the centering "jump" -->
+                <p id="name-display" class="text-center w-full text-6xl font-black text-av-gold transition-all duration-500 ease-in-out transform scale-100 opacity-100">
+                    ?
+                </p>
+            </div>
+            
+        </div>
+
+        <!-- Randomization Button - Updated Text -->
+        <div class="mt-8">
+            <button
+                id="randomize-button"
+                class="w-full bg-av-red hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 ease-in-out transform hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-av-red focus:ring-opacity-50 text-xl tracking-wider uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                onclick="randomizeName()"
+            >
+                Randomize
+            </button>
+        </div>
+
+        <!-- Name Source List: Updated with the new list -->
+        <div class="mt-12 text-center text-gray-500">
+             <p class="text-lg font-semibold mb-3 text-av-silver">Available Names</p>
+            <div class="flex justify-center text-sm font-mono">
+                <div class="p-3 bg-gray-800 rounded-lg text-av-silver max-w-full text-left">
+                    Julia Suarez, Tiana Agarwal, Eric Brandel, Aliza Goldstein, Diane Ohye, Ankita Basu, Melissa Boyer, Deb Teixeira Leal, Jeff McCann, Karen Yeh, Kirsten Hartil, Sam DeHority, Kerstin Huebner, Mary Jo Wainwright, Crystal Mooney, Lana Lemon, Suzy Adams
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Data structure containing all names - UPDATED LIST
+        const NAMES = [
+            { name: "Julia Suarez" },
+            { name: "Tiana Agarwal" },
+            { name: "Eric Brandel" },
+            { name: "Aliza Goldstein" },
+            { name: "Diane Ohye" },
+            { name: "Ankita Basu" },
+            { name: "Melissa Boyer" },
+            { name: "Deb Teixeira Leal" },
+            { name: "Jeff McCann" },
+            { name: "Karen Yeh" },
+            { name: "Kirsten Hartil" },
+            { name: "Sam DeHority" },
+            { name: "Kerstin Huebner" },
+            { name: "Mary Jo Wainwright" },
+            { name: "Crystal Mooney" },
+            { name: "Lana Lemon" },
+            { name: "Suzy Adams" },
+        ];
+
+        // UI elements
+        const nameDisplay = document.getElementById('name-display');
+        const categoryDisplay = document.getElementById('category-display');
+        const resultCard = document.getElementById('result-card');
+        const button = document.getElementById('randomize-button');
+        
+        // Define a single, neutral theme for all generated results
+        const NEUTRAL_THEME = {
+            cardBorder: 'border-av-red', 
+            textClass: 'text-av-gold', // Always use the primary gold color for the name
+            categoryText: 'text-gray-400', // Neutral color for the category
+            categoryName: '' // <-- Removed "Random Name"
+        };
+
+        /**
+         * Clears existing theme classes from an element.
+         * @param {HTMLElement} element - The element to clean.
+         * @param {string[]} classesToExclude - Array of class prefixes to remove.
+         */
+        function clearClasses(element, classesToExclude) {
+            const currentClasses = Array.from(element.classList);
+            currentClasses.forEach(cls => {
+                if (classesToExclude.some(prefix => cls.startsWith(prefix))) {
+                    element.classList.remove(cls);
+                }
+            });
+        }
+
+        /**
+         * Randomizes the name and updates the display using a single, neutral theme.
+         */
+        function randomizeName() {
+            // Disable button to prevent clicks during the animation cycle
+            button.disabled = true;
+
+            // 1. Pick a random name object
+            const randomIndex = Math.floor(Math.random() * NAMES.length);
+            const randomName = NAMES[randomIndex];
+            const theme = NEUTRAL_THEME; // Use the fixed neutral theme
+
+            // 2. Apply transition classes for animation effect (shrink) - Made zoom out more dramatic
+            nameDisplay.classList.remove('scale-100', 'opacity-100');
+            nameDisplay.classList.add('scale-75', 'opacity-0'); // Was scale-90, opacity-50
+
+            // Force a browser reflow/re-render to ensure the 'shrink' transition starts immediately
+            void nameDisplay.offsetHeight;
+
+            // Timeout to allow the "shrink" animation to complete (250ms)
+            setTimeout(() => {
+                // 3. Update Text Content
+                
+                // --- THIS IS THE FIX ---
+                // Clear all possible font size classes first to prevent conflicts
+                nameDisplay.classList.remove('text-4xl', 'text-5xl', 'text-6xl', 'text-7xl', 'text-9xl');
+
+                // Adjust font size dynamically
+                if (randomName.name.length > 15) {
+                    // Long name, make it smaller to fit (was text-5xl)
+                    nameDisplay.classList.add('text-4xl'); 
+                } else {
+                    // Short name, make it large (was text-9xl)
+                    nameDisplay.classList.add('text-7xl'); 
+                }
+                // --- END OF FIX ---
+                
+                nameDisplay.textContent = randomName.name;
+                categoryDisplay.textContent = theme.categoryName; // Neutral text
+
+                // 4. Update Styling (Apply fixed neutral theme)
+                
+                // Clear and add border for result card
+                clearClasses(resultCard, ['border-']);
+                resultCard.classList.add(theme.cardBorder);
+
+                /* FIX: The list of prefixes was too broad ('text-'). 
+                  This now specifies only color prefixes, so it won't 
+                  remove 'text-center' or 'text-9xl' anymore.
+                */
+                // Clear and add text color for name
+                clearClasses(nameDisplay, ['text-av-red', 'text-av-gold', 'text-av-blue', 'text-av-silver', 'text-gray-']);
+                nameDisplay.classList.add(theme.textClass);
+                
+                // Clear and add text color for category
+                clearClasses(categoryDisplay, ['text-av-red', 'text-av-gold', 'text-av-blue', 'text-av-silver', 'text-gray-']);
+                categoryDisplay.classList.add(theme.categoryText);
+
+                // 5. Apply transition classes to restore the name to full size/opacity (grow)
+                nameDisplay.classList.remove('scale-75', 'opacity-0'); // Was scale-90, opacity-50
+                nameDisplay.classList.add('scale-100', 'opacity-100');
+
+                // Re-enable the button after the full cycle
+                setTimeout(() => {
+                    button.disabled = false;
+                }, 350); 
+
+            }, 250); // Duration for the shrink animation
+        }
+
+    </script>
+</body>
+</html>
+
+
