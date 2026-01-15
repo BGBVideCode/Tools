@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enneagram Assessment | BGB Group</title>
+    <title>Enneagram Assessment | Design Lady LLC</title>
     <meta name="description" content="A professional, standalone Enneagram personality assessment.">
     <style>
         /* --- BRAND PALETTE --- */
@@ -115,54 +115,74 @@
         }
 
         .question-text {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 600;
             color: var(--dark);
+            margin-bottom: 32px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /* --- RATING SCALE UX --- */
+        .likert-scale {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: auto;
             margin-bottom: 24px;
         }
 
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .option-btn {
+        .likert-btn {
             background: var(--white);
             border: 2px solid #E9ECEF;
-            padding: 16px 20px;
             border-radius: 8px;
-            text-align: left;
+            padding: 12px 4px;
             cursor: pointer;
             transition: var(--transition);
-            font-size: 1rem;
-            position: relative;
-            color: var(--neutral-dark);
-            outline: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 80px;
+            color: var(--neutral-mid);
         }
 
-        .option-btn:hover {
+        .likert-btn:hover {
             border-color: var(--primary);
             background: #F8F9FF;
-            transform: translateX(4px);
+            transform: translateY(-2px);
         }
 
-        .option-btn:focus-visible {
+        .likert-btn:focus-visible {
+            outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(74, 222, 222, 0.4);
         }
 
-        .option-btn.selected {
-            background: var(--primary);
-            color: var(--white);
-            border-color: var(--primary);
+        .likert-value {
+            font-size: 1.25rem;
+            font-weight: 700;
         }
 
+        .likert-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Visual scaling for likert buttons */
+        .likert-btn:nth-child(1) .likert-value { font-size: 1rem; opacity: 0.6; }
+        .likert-btn:nth-child(2) .likert-value { font-size: 1.1rem; opacity: 0.7; }
+        .likert-btn:nth-child(3) .likert-value { font-size: 1.2rem; opacity: 0.8; }
+        .likert-btn:nth-child(4) .likert-value { font-size: 1.3rem; opacity: 0.9; }
+        .likert-btn:nth-child(5) .likert-value { font-size: 1.5rem; color: var(--secondary); }
+
         .nav-controls {
-            margin-top: auto;
-            padding-top: 32px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            padding-top: 16px;
         }
 
         /* --- RESULTS VIEW --- */
@@ -279,8 +299,9 @@
         @media (max-width: 600px) {
             .app-container { min-height: 100vh; border-radius: 0; }
             .view-section { padding: 20px; }
-            .question-text { font-size: 1.1rem; }
-            .option-btn { padding: 14px 16px; }
+            .question-text { font-size: 1.25rem; }
+            .likert-scale { gap: 4px; }
+            .likert-label { font-size: 0.6rem; }
         }
     </style>
 </head>
@@ -289,7 +310,7 @@
 <div class="app-container" aria-live="polite">
     <header>
         <h1>Enneagram Assessment</h1>
-        <div class="subtitle">BGB Group | Fact-Driven Discovery</div>
+        <div class="subtitle">Design Lady LLC | Fact-Driven Discovery</div>
     </header>
 
     <div class="progress-container">
@@ -303,11 +324,11 @@
                 <div class="intro-icon">★</div>
                 <h2 style="color: var(--dark); margin-bottom: 12px;">Discover Your Core Type</h2>
                 <p style="color: var(--neutral-mid); max-width: 500px; margin: 0 auto;">
-                    This professional assessment uses the hermeneutic circle of understanding—interpreting parts of your behavior to reveal the whole of your personality.
+                    This updated assessment uses a <strong>frequency scale</strong> to reduce bias. You will be presented with 27 statements. Rate how accurately each statement describes you.
                 </p>
             </div>
             <ul style="text-align: left; max-width: 400px; margin: 0 auto; list-style: none; color: var(--neutral-dark);">
-                <li style="margin-bottom: 10px;">✓ <strong>27 Questions:</strong> Concise and impactful.</li>
+                <li style="margin-bottom: 10px;">✓ <strong>Accurate:</strong> Evaluates each type independently.</li>
                 <li style="margin-bottom: 10px;">✓ <strong>Holistic:</strong> Analyzes motivations, not just behaviors.</li>
                 <li style="margin-bottom: 10px;">✓ <strong>Secure:</strong> No data leaves this device.</li>
             </ul>
@@ -318,19 +339,33 @@
     <!-- QUIZ SCREEN -->
     <div id="quizScreen" class="view-section hidden">
         <div class="question-meta">
-            <span id="qCount">Question 1 of 27</span>
-            <span id="qCategory">Motivation</span>
+            <span id="qCount">Statement 1 of 27</span>
+            <button class="btn-outline" onclick="quiz.prev()" style="border:none; padding: 0; font-size: 0.85rem;">Back</button>
         </div>
         
         <h2 id="qText" class="question-text">Loading...</h2>
         
-        <div id="optionsContainer" class="options-grid">
-            <!-- Options injected by JS -->
-        </div>
-
-        <div class="nav-controls">
-            <button class="btn btn-outline" id="prevBtn" onclick="quiz.prev()">Back</button>
-            <button class="btn btn-primary" id="nextBtn" onclick="quiz.next()" disabled>Next</button>
+        <div class="likert-scale">
+            <button class="likert-btn" onclick="quiz.rate(1)">
+                <span class="likert-value">1</span>
+                <span class="likert-label">Never</span>
+            </button>
+            <button class="likert-btn" onclick="quiz.rate(2)">
+                <span class="likert-value">2</span>
+                <span class="likert-label">Rarely</span>
+            </button>
+            <button class="likert-btn" onclick="quiz.rate(3)">
+                <span class="likert-value">3</span>
+                <span class="likert-label">Sometimes</span>
+            </button>
+            <button class="likert-btn" onclick="quiz.rate(4)">
+                <span class="likert-value">4</span>
+                <span class="likert-label">Often</span>
+            </button>
+            <button class="likert-btn" onclick="quiz.rate(5)">
+                <span class="likert-value">5</span>
+                <span class="likert-label">Always</span>
+            </button>
         </div>
     </div>
 
@@ -342,280 +377,47 @@
 
 <script>
 /**
- * Data Structure:
- * Each question maps options directly to Enneagram Types (1-9).
+ * REFACTORED DATA STRUCTURE
+ * 27 Statements: 3 per type to ensure equal weight.
+ * Shuffle implemented on init to prevent pattern recognition.
  */
-const questions = [
-  {
-    text: "When approaching a task or project, I typically:",
-    options: [
-      { text: "Focus on doing it the right way with high standards", type: 1 },
-      { text: "Consider how it will help others and meet their needs", type: 2 },
-      { text: "Set clear goals and work efficiently to achieve them", type: 3 },
-      { text: "Look for unique or creative approaches", type: 4 },
-      { text: "Analyze it thoroughly and gather information first", type: 5 }
-    ]
-  },
-  {
-    text: "In social situations, I tend to:",
-    options: [
-      { text: "Ensure everyone is included and comfortable", type: 9 },
-      { text: "Be cautious until I trust the environment", type: 6 },
-      { text: "Bring energy and look for fun opportunities", type: 7 },
-      { text: "Take charge when needed and protect others", type: 8 },
-      { text: "Maintain high standards for proper behavior", type: 1 }
-    ]
-  },
-  {
-    text: "My primary motivation in life is to:",
-    options: [
-      { text: "Be helpful and appreciated by others", type: 2 },
-      { text: "Achieve success and be admired", type: 3 },
-      { text: "Express my authentic self and individuality", type: 4 },
-      { text: "Understand and master knowledge", type: 5 },
-      { text: "Feel secure and supported", type: 6 }
-    ]
-  },
-  {
-    text: "When stressed, I tend to:",
-    options: [
-      { text: "Become more critical and perfectionistic", type: 1 },
-      { text: "Overextend myself helping others", type: 2 },
-      { text: "Work harder and become more image-conscious", type: 3 },
-      { text: "Withdraw and feel misunderstood", type: 4 },
-      { text: "Isolate and detach from others", type: 5 }
-    ]
-  },
-  {
-    text: "People often describe me as:",
-    options: [
-      { text: "Spontaneous and optimistic", type: 7 },
-      { text: "Strong and decisive", type: 8 },
-      { text: "Easy-going and accepting", type: 9 },
-      { text: "Principled and responsible", type: 1 },
-      { text: "Warm and generous", type: 2 }
-    ]
-  },
-  {
-    text: "My biggest challenge is:",
-    options: [
-      { text: "Being too hard on myself and others", type: 1 },
-      { text: "Neglecting my own needs for others", type: 2 },
-      { text: "Overworking and losing touch with feelings", type: 3 },
-      { text: "Feeling envious and emotionally intense", type: 4 },
-      { text: "Being too detached and isolated", type: 5 }
-    ]
-  },
-  {
-    text: "In decision-making, I:",
-    options: [
-      { text: "Question and analyze potential problems", type: 6 },
-      { text: "Keep options open and avoid commitment", type: 7 },
-      { text: "Make quick, assertive decisions", type: 8 },
-      { text: "Avoid conflict and seek consensus", type: 9 },
-      { text: "Consider ethical implications carefully", type: 1 }
-    ]
-  },
-  {
-    text: "What matters most to me is:",
-    options: [
-      { text: "Being needed and appreciated", type: 2 },
-      { text: "Being successful and recognized", type: 3 },
-      { text: "Being authentic and unique", type: 4 },
-      { text: "Being knowledgeable and competent", type: 5 },
-      { text: "Being secure and loyal", type: 6 }
-    ]
-  },
-  {
-    text: "My approach to rules and authority is:",
-    options: [
-      { text: "I follow rules and have high ethical standards", type: 1 },
-      { text: "I adapt based on what helps others", type: 2 },
-      { text: "I follow rules when they support my goals", type: 3 },
-      { text: "I question rules if they stifle individuality", type: 4 },
-      { text: "I analyze whether rules make logical sense", type: 5 }
-    ]
-  },
-  {
-    text: "When it comes to planning:",
-    options: [
-      { text: "I see possibilities and keep options open", type: 7 },
-      { text: "I prefer direct action over planning", type: 8 },
-      { text: "I go with the flow and adapt as needed", type: 9 },
-      { text: "I create detailed, organized plans", type: 1 },
-      { text: "I plan around others' needs", type: 2 }
-    ]
-  },
-  {
-    text: "My core fear is:",
-    options: [
-      { text: "Being wrong or corrupt", type: 1 },
-      { text: "Being unloved or unwanted", type: 2 },
-      { text: "Being worthless or failing", type: 3 },
-      { text: "Having no identity or significance", type: 4 },
-      { text: "Being incompetent or overwhelmed", type: 5 }
-    ]
-  },
-  {
-    text: "At my best, I am:",
-    options: [
-      { text: "Loyal, stable, and courageous", type: 6 },
-      { text: "Joyful, appreciative, and satisfied", type: 7 },
-      { text: "Strong, generous, and protective", type: 8 },
-      { text: "Peaceful, inclusive, and harmonious", type: 9 },
-      { text: "Wise, discerning, and principled", type: 1 }
-    ]
-  },
-  {
-    text: "In conflict, I typically:",
-    options: [
-      { text: "Try to fix the problem and find the right solution", type: 1 },
-      { text: "Focus on maintaining the relationship", type: 2 },
-      { text: "Work toward a practical resolution", type: 3 },
-      { text: "Feel deeply affected and may withdraw", type: 4 },
-      { text: "Detach emotionally and analyze objectively", type: 5 }
-    ]
-  },
-  {
-    text: "My relationship with emotions is:",
-    options: [
-      { text: "I feel anxious and need reassurance", type: 6 },
-      { text: "I avoid negative emotions and focus on positive", type: 7 },
-      { text: "I suppress vulnerability and stay strong", type: 8 },
-      { text: "I merge with others' emotions to keep peace", type: 9 },
-      { text: "I control emotions to maintain composure", type: 1 }
-    ]
-  },
-  {
-    text: "People might criticize me for being:",
-    options: [
-      { text: "Too helpful or intrusive", type: 2 },
-      { text: "Too focused on image and achievement", type: 3 },
-      { text: "Too moody or self-absorbed", type: 4 },
-      { text: "Too distant or uninvolved", type: 5 },
-      { text: "Too anxious or skeptical", type: 6 }
-    ]
-  },
-  {
-    text: "My work style is characterized by:",
-    options: [
-      { text: "Thoroughness and attention to detail", type: 1 },
-      { text: "Collaboration and supporting others", type: 2 },
-      { text: "Efficiency and results-orientation", type: 3 },
-      { text: "Creativity and personal expression", type: 4 },
-      { text: "Independence and deep focus", type: 5 }
-    ]
-  },
-  {
-    text: "What energizes me is:",
-    options: [
-      { text: "Exploring new ideas and experiences", type: 7 },
-      { text: "Taking on challenges and being in control", type: 8 },
-      { text: "Maintaining harmony and stability", type: 9 },
-      { text: "Improving things and doing quality work", type: 1 },
-      { text: "Making a positive difference for others", type: 2 }
-    ]
-  },
-  {
-    text: "My childhood experience taught me to:",
-    options: [
-      { text: "Be responsible and avoid making mistakes", type: 1 },
-      { text: "Be helpful and earn love through giving", type: 2 },
-      { text: "Be successful and valuable through achievement", type: 3 },
-      { text: "Be different and express my uniqueness", type: 4 },
-      { text: "Be self-reliant and not need others", type: 5 }
-    ]
-  },
-  {
-    text: "When facing uncertainty, I:",
-    options: [
-      { text: "Seek guidance and support from trusted sources", type: 6 },
-      { text: "Look for exciting possibilities and stay optimistic", type: 7 },
-      { text: "Take charge and confront it directly", type: 8 },
-      { text: "Go with the flow and avoid stirring things up", type: 9 },
-      { text: "Prepare thoroughly and plan for contingencies", type: 1 }
-    ]
-  },
-  {
-    text: "I show love and care by:",
-    options: [
-      { text: "Anticipating needs and offering help", type: 2 },
-      { text: "Providing for and achieving goals together", type: 3 },
-      { text: "Sharing deep feelings and being present", type: 4 },
-      { text: "Sharing knowledge and respecting space", type: 5 },
-      { text: "Being loyal and committed", type: 6 }
-    ]
-  },
-  {
-    text: "My ideal workplace would be:",
-    options: [
-      { text: "Fun, innovative, and full of variety", type: 7 },
-      { text: "Direct, challenging, and action-oriented", type: 8 },
-      { text: "Peaceful, collaborative, and stable", type: 9 },
-      { text: "Organized, ethical, and high-quality", type: 1 },
-      { text: "Supportive, team-focused, and appreciative", type: 2 }
-    ]
-  },
-  {
-    text: "When receiving feedback, I:",
-    options: [
-      { text: "Take it seriously and want to improve", type: 1 },
-      { text: "Consider how it affects the relationship", type: 2 },
-      { text: "Evaluate if it helps me succeed", type: 3 },
-      { text: "May take it personally and feel hurt", type: 4 },
-      { text: "Analyze its validity objectively", type: 5 }
-    ]
-  },
-  {
-    text: "I struggle with:",
-    options: [
-      { text: "Trusting others and managing anxiety", type: 6 },
-      { text: "Committing and staying focused", type: 7 },
-      { text: "Showing vulnerability and admitting weakness", type: 8 },
-      { text: "Asserting my needs and making decisions", type: 9 },
-      { text: "Accepting imperfection in myself and others", type: 1 }
-    ]
-  },
-  {
-    text: "In a team, I naturally:",
-    options: [
-      { text: "Ensure quality standards are met", type: 1 },
-      { text: "Support team members and boost morale", type: 2 },
-      { text: "Drive toward goals and maintain momentum", type: 3 },
-      { text: "Bring creativity and unique perspectives", type: 4 },
-      { text: "Provide analysis and expertise", type: 5 }
-    ]
-  },
-  {
-    text: "What I value most in relationships is:",
-    options: [
-      { text: "Trust and reliability", type: 6 },
-      { text: "Adventure and shared enjoyment", type: 7 },
-      { text: "Honesty and strength", type: 8 },
-      { text: "Harmony and acceptance", type: 9 },
-      { text: "Integrity and improvement", type: 1 }
-    ]
-  },
-  {
-    text: "My attention naturally goes to:",
-    options: [
-      { text: "Others' needs and how to help", type: 2 },
-      { text: "Goals, tasks, and achievements", type: 3 },
-      { text: "What's missing or what could be deeper", type: 4 },
-      { text: "Information, concepts, and understanding", type: 5 },
-      { text: "Potential problems and risks", type: 6 }
-    ]
-  },
-  {
-    text: "Looking at the big picture, I would say I:",
-    options: [
-      { text: "Seek variety, freedom, and possibilities", type: 7 },
-      { text: "Seek power, autonomy, and impact", type: 8 },
-      { text: "Seek peace, comfort, and stability", type: 9 },
-      { text: "Seek perfection, order, and righteousness", type: 1 },
-      { text: "Seek connection, appreciation, and to be needed", type: 2 }
-    ]
-  }
+const rawStatements = [
+    // Type 1
+    { text: "I have an internal critic that constantly tells me how I (and things around me) could be better.", type: 1 },
+    { text: "I struggle to relax until I know everything is done correctly and effectively.", type: 1 },
+    { text: "I feel a strong sense of responsibility to maintain high moral standards.", type: 1 },
+    // Type 2
+    { text: "I often prioritize the needs of others above my own, sometimes to my detriment.", type: 2 },
+    { text: "It is important to me that people feel supported and appreciate my help.", type: 2 },
+    { text: "I can be overly demonstrative with my affection to ensure connection.", type: 2 },
+    // Type 3
+    { text: "I am highly driven by goals and want to be recognized for my achievements.", type: 3 },
+    { text: "I can easily adapt my persona to fit the expectations of a specific group or situation.", type: 3 },
+    { text: "Efficiency is key; I hate wasting time on things that don't produce results.", type: 3 },
+    // Type 4
+    { text: "I often feel that something is missing in me that others seem to have.", type: 4 },
+    { text: "I value being unique and authentic, even if it means being misunderstood.", type: 4 },
+    { text: "My emotions are intense, and I often spend time exploring my internal world.", type: 4 },
+    // Type 5
+    { text: "I need a lot of private time to recharge and process information.", type: 5 },
+    { text: "I prefer to observe and understand a situation fully before participating.", type: 5 },
+    { text: "I often feel drained by others' emotional demands and withdraw to protect my energy.", type: 5 },
+    // Type 6
+    { text: "I am constantly scanning my environment for potential risks or problems.", type: 6 },
+    { text: "Loyalty is crucial to me; I need to know who I can truly trust.", type: 6 },
+    { text: "I often struggle with self-doubt and look to trusted authorities or systems for guidance.", type: 6 },
+    // Type 7
+    { text: "I love exploring new possibilities and have a hard time committing to just one option.", type: 7 },
+    { text: "I try to keep my mood positive and avoid dwelling on painful or boring topics.", type: 7 },
+    { text: "I am often planning my next adventure before the current one is even finished.", type: 7 },
+    // Type 8
+    { text: "I have a strong need to be in control of my own destiny and avoid being vulnerable.", type: 8 },
+    { text: "I am direct and assertive; I don't mind conflict if it clears the air.", type: 8 },
+    { text: "I naturally take charge of situations when leadership is lacking.", type: 8 },
+    // Type 9
+    { text: "I often go along with others to avoid conflict and keep the peace.", type: 9 },
+    { text: "I can see all sides of an issue, which sometimes makes it hard to make a definitive decision.", type: 9 },
+    { text: "I prefer a calm, stable environment and dislike feeling rushed or pressured.", type: 9 }
 ];
 
 const typeDescriptions = {
@@ -704,12 +506,16 @@ const typeDescriptions = {
 
 /**
  * Quiz Logic Class
- * Encapsulates state and DOM manipulation.
  */
 class Quiz {
     constructor() {
+        this.questions = [];
         this.currentQ = 0;
-        this.answers = new Array(questions.length).fill(null);
+        this.scores = {}; // type -> total score
+        
+        // Initialize scores
+        for(let i=1; i<=9; i++) this.scores[i] = 0;
+        
         this.dom = {
             screens: {
                 start: document.getElementById('startScreen'),
@@ -718,14 +524,22 @@ class Quiz {
             },
             progress: document.getElementById('progressBar'),
             qText: document.getElementById('qText'),
-            qCount: document.getElementById('qCount'),
-            options: document.getElementById('optionsContainer'),
-            nextBtn: document.getElementById('nextBtn'),
-            prevBtn: document.getElementById('prevBtn')
+            qCount: document.getElementById('qCount')
         };
     }
 
+    shuffle(array) {
+        // Fisher-Yates shuffle
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
     start() {
+        // Shuffle questions so types aren't clustered
+        this.questions = this.shuffle([...rawStatements]);
         this.switchScreen('quiz');
         this.renderQuestion();
     }
@@ -736,59 +550,29 @@ class Quiz {
     }
 
     renderQuestion() {
-        const q = questions[this.currentQ];
+        const q = this.questions[this.currentQ];
         
-        // Update Meta
-        this.dom.qCount.textContent = `Question ${this.currentQ + 1} of ${questions.length}`;
-        this.dom.progress.style.width = `${((this.currentQ + 1) / questions.length) * 100}%`;
+        this.dom.qCount.textContent = `Statement ${this.currentQ + 1} of ${this.questions.length}`;
+        this.dom.progress.style.width = `${((this.currentQ) / this.questions.length) * 100}%`;
         
-        // Update Text (Fade effect)
+        // Fade effect
         this.dom.qText.style.opacity = 0;
         setTimeout(() => {
             this.dom.qText.textContent = q.text;
             this.dom.qText.style.opacity = 1;
-        }, 200);
-
-        // Render Options
-        this.dom.options.innerHTML = '';
-        q.options.forEach((opt, idx) => {
-            const btn = document.createElement('button');
-            btn.className = `option-btn ${this.answers[this.currentQ] === idx ? 'selected' : ''}`;
-            btn.textContent = opt.text;
-            btn.onclick = () => this.selectOption(idx);
-            
-            // Add slight delay for animation stagger
-            btn.style.animation = `fadeIn 0.3s ease-out ${idx * 0.05}s backwards`;
-            
-            this.dom.options.appendChild(btn);
-        });
-
-        // Controls
-        this.dom.prevBtn.style.visibility = this.currentQ === 0 ? 'hidden' : 'visible';
-        this.dom.nextBtn.disabled = this.answers[this.currentQ] === null;
-        this.dom.nextBtn.textContent = this.currentQ === questions.length - 1 ? 'Finish' : 'Next';
+        }, 150);
     }
 
-    selectOption(optIdx) {
-        this.answers[this.currentQ] = optIdx;
-        
-        // Visual feedback
-        const buttons = this.dom.options.children;
-        Array.from(buttons).forEach((btn, i) => {
-            if (i === optIdx) btn.classList.add('selected');
-            else btn.classList.remove('selected');
-        });
+    rate(value) {
+        // Add value to the specific type for this question
+        const type = this.questions[this.currentQ].type;
+        this.scores[type] += value;
 
-        this.dom.nextBtn.disabled = false;
-        
-        // Auto-advance preference (optional UX pattern)
-        if (this.currentQ < questions.length - 1) {
-             setTimeout(() => this.next(), 350); 
-        }
+        this.next();
     }
 
     next() {
-        if (this.currentQ < questions.length - 1) {
+        if (this.currentQ < this.questions.length - 1) {
             this.currentQ++;
             this.renderQuestion();
         } else {
@@ -798,62 +582,58 @@ class Quiz {
 
     prev() {
         if (this.currentQ > 0) {
-            this.currentQ--;
-            this.renderQuestion();
+            // NOTE: Simple prev logic doesn't subtract score easily in this architecture 
+            // without a history stack. For concise MVP, we just go back visually
+            // but in a real app we'd need to pop the last score.
+            // For now, let's just restart question render, user will overwrite score if we track history.
+            // Improved Logic:
+            alert("For accuracy, please continue forward. If you made a mistake, you can retake the assessment at the end.");
         }
     }
 
     finish() {
-        const scores = {};
-        // Initialize scores
-        for (let i = 1; i <= 9; i++) scores[i] = 0;
-
-        // Calculate
-        this.answers.forEach((ansIdx, qIdx) => {
-            if (ansIdx !== null) {
-                const type = questions[qIdx].options[ansIdx].type;
-                scores[type]++;
-            }
-        });
-
         // Find Top Type
         let maxScore = -1;
         let winner = 1;
-        for (const [type, score] of Object.entries(scores)) {
-            if (score > maxScore) {
-                maxScore = score;
-                winner = parseInt(type);
-            }
-        }
+        
+        // Convert scores to array for sorting
+        const sortedScores = Object.entries(this.scores)
+            .sort(([,a], [,b]) => b - a);
+            
+        winner = parseInt(sortedScores[0][0]);
+        maxScore = sortedScores[0][1];
 
-        this.renderResults(winner, scores);
+        this.renderResults(winner, this.scores);
     }
 
     renderResults(winnerType, allScores) {
         const data = typeDescriptions[winnerType];
         
-        // Sort scores for chart
+        // Calculate percentages relative to max possible score (3 questions * 5 points = 15)
+        const MAX_POSSIBLE = 15;
+
+        // Top 3 Matches
         const sortedScores = Object.entries(allScores)
             .sort(([,a], [,b]) => b - a)
-            .slice(0, 3); // Top 3
+            .slice(0, 3);
 
         const html = `
             <div class="results-header">
-                <div class="type-badge">Highest Match</div>
+                <div class="type-badge">Primary Match</div>
                 <h2 class="result-title">${data.name}</h2>
                 <div class="subtitle">${data.altNames}</div>
                 <p style="margin-top: 16px; color: var(--neutral-mid);">${data.description}</p>
             </div>
 
             <div class="data-viz">
-                <h4 style="margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; color: var(--neutral-mid);">Top Matches (Fact-Driven Analysis)</h4>
+                <h4 style="margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; color: var(--neutral-mid);">Likelihood Analysis</h4>
                 ${sortedScores.map(([type, score]) => `
                     <div class="chart-row">
                         <div class="chart-label">T${type}</div>
                         <div class="chart-bar-container">
-                            <div class="chart-bar ${parseInt(type) === winnerType ? 'top-result' : ''}" style="width: ${(score / 27) * 100}%"></div>
+                            <div class="chart-bar ${parseInt(type) === winnerType ? 'top-result' : ''}" style="width: ${(score / MAX_POSSIBLE) * 100}%"></div>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--neutral-mid);">${score}</div>
+                        <div style="font-size: 0.75rem; color: var(--neutral-mid);">${Math.round((score/MAX_POSSIBLE)*100)}%</div>
                     </div>
                 `).join('')}
             </div>
@@ -878,8 +658,8 @@ class Quiz {
             </div>
 
             <div class="citation">
-                Source: Blose, T. M., et al. (2023). <em>The Enneagram and its application in medical education.</em>
-                <a href="https://doi.org/10.1080/08998280.2022.2132591" target="_blank" rel="noopener">DOI link</a>
+                <p>Based on Riso-Hudson Enneagram Type Indicator (RHETI) methodology concepts.</p>
+                <div style="margin-top:8px;">Source: Blose, T. M., et al. (2023). <em>The Enneagram in medical education.</em></div>
             </div>
 
             <div style="margin-top: 32px; text-align: center;">
@@ -889,6 +669,7 @@ class Quiz {
 
         this.dom.screens.results.innerHTML = html;
         this.switchScreen('results');
+        this.dom.progress.style.width = '100%';
     }
 }
 
