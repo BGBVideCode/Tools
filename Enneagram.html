@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enneagram Assessment | BGB Group</title>
-    <meta name="description" content="A professional, standalone Enneagram personality assessment.">
+    <meta name="description" content="A professional, standalone Enneagram personality assessment focusing on core motivations.">
     <style>
         /* --- BRAND PALETTE --- */
         :root {
@@ -106,12 +106,14 @@
         /* --- QUIZ VIEW --- */
         .question-meta {
             display: flex;
+            align-items: center;
             justify-content: space-between;
             color: var(--neutral-mid);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 16px;
+            height: 24px; /* Fix height to prevent jumping */
         }
 
         .question-text {
@@ -183,6 +185,31 @@
             display: flex;
             justify-content: center;
             padding-top: 16px;
+        }
+        
+        /* Back Button Style */
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--neutral-mid);
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .back-btn:hover {
+            color: var(--dark);
+            background: #E9ECEF;
+        }
+
+        .back-btn:disabled {
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* --- RESULTS VIEW --- */
@@ -309,8 +336,8 @@
 
 <div class="app-container" aria-live="polite">
     <header>
-        <h1>Enneagram Assessment v2</h1>
-        <div class="subtitle">BGB Group | Motivation-Driven Analysis</div>
+        <h1>Enneagram Assessment</h1>
+        <div class="subtitle">BGB Group | Fact-Driven Discovery</div>
     </header>
 
     <div class="progress-container">
@@ -322,14 +349,14 @@
         <div class="intro-content">
             <div>
                 <div class="intro-icon">★</div>
-                <h2 style="color: var(--dark); margin-bottom: 12px;">Discover Your Core Type</h2>
+                <h2 style="color: var(--dark); margin-bottom: 12px;">Discover Your Core Motivation</h2>
                 <p style="color: var(--neutral-mid); max-width: 500px; margin: 0 auto;">
-                    This revised assessment focuses on <strong>underlying motivations</strong> rather than surface behaviors. You will be presented with 27 statements about your internal experience and core drivers.
+                    This professional assessment evaluates your <strong>underlying motivations</strong> rather than just behaviors. Rate how accurately each statement describes your inner drivers.
                 </p>
             </div>
             <ul style="text-align: left; max-width: 400px; margin: 0 auto; list-style: none; color: var(--neutral-dark);">
-                <li style="margin-bottom: 10px;">✓ <strong>Motivation-Focused:</strong> Captures WHY you do things, not just WHAT you do.</li>
-                <li style="margin-bottom: 10px;">✓ <strong>Core Fears & Desires:</strong> Based on Enneagram theory fundamentals.</li>
+                <li style="margin-bottom: 10px;">✓ <strong>Precise:</strong> Distinguishes <em>why</em> you do what you do.</li>
+                <li style="margin-bottom: 10px;">✓ <strong>Accurate:</strong> 27 motivation-centric statements.</li>
                 <li style="margin-bottom: 10px;">✓ <strong>Secure:</strong> No data leaves this device.</li>
             </ul>
             <button class="btn btn-primary" onclick="quiz.start()" style="width: 100%; max-width: 300px; margin: 20px auto;">Begin Assessment</button>
@@ -339,8 +366,9 @@
     <!-- QUIZ SCREEN -->
     <div id="quizScreen" class="view-section hidden">
         <div class="question-meta">
+            <button class="back-btn" id="prevBtn" onclick="quiz.prev()">← Back</button>
             <span id="qCount">Statement 1 of 27</span>
-            <button class="btn-outline" onclick="quiz.prev()" style="border:none; padding: 0; font-size: 0.85rem;">Back</button>
+            <div style="width: 60px;"></div> <!-- Spacer for alignment -->
         </div>
         
         <h2 id="qText" class="question-text">Loading...</h2>
@@ -377,55 +405,55 @@
 
 <script>
 /**
- * REVISED DATA STRUCTURE - MOTIVATION-FOCUSED
- * Questions now target core fears, desires, and internal experience
- * rather than observable behaviors that could apply to multiple types.
+ * MOTIVATION-CENTRIC STATEMENTS
+ * Updated to measure the "Why" (Motivations/Fears) instead of just "What" (Behavior).
+ * This distinguishes types that look similar on the surface (e.g., 2 vs 5 vs 9).
  */
 const rawStatements = [
-    // Type 1 - Core Fear: Being corrupt/wrong. Core Desire: Integrity
-    { text: "I have an internal critic that points out flaws and tells me how things should be better or more correct.", type: 1 },
-    { text: "I feel a deep sense of responsibility to do the right thing, even when no one is watching.", type: 1 },
-    { text: "I become frustrated when people don't follow proper procedures or maintain standards.", type: 1 },
+    // Type 1 (Fear: Being bad/corrupt | Desire: Integrity)
+    { text: "I feel a constant internal pressure to improve things because I fear being wrong or imperfect.", type: 1 },
+    { text: "I repress my anger to maintain my composure and sense of righteousness.", type: 1 },
+    { text: "I judge myself strictly because I believe I must earn my worth through correctness.", type: 1 },
     
-    // Type 2 - Core Fear: Being unwanted/unloved. Core Desire: To be loved
-    { text: "I feel most valuable when others need me or depend on my support.", type: 2 },
-    { text: "I struggle to say no when people ask for help, even when it's inconvenient for me.", type: 2 },
-    { text: "I worry that if I don't help others, they won't want me around.", type: 2 },
+    // Type 2 (Fear: Being unwanted | Desire: To be loved)
+    { text: "I focus on others' needs because I secretly fear I am not lovable unless I am helpful.", type: 2 },
+    { text: "I alter my presentation to be what others need me to be, hoping to win their affection.", type: 2 },
+    { text: "I feel deep distress when my help is rejected because it feels like *I* am being rejected.", type: 2 },
     
-    // Type 3 - Core Fear: Being worthless. Core Desire: To be valuable
-    { text: "My sense of self-worth is closely tied to my accomplishments and how others perceive my success.", type: 3 },
-    { text: "I find it difficult to relax or be unproductive because it feels like wasting time.", type: 3 },
-    { text: "I am aware of how I present myself and adjust my image to fit different situations.", type: 3 },
+    // Type 3 (Fear: Being worthless | Desire: Value/Admiration)
+    { text: "I work themselves to exhaustion because I fear I have no value without my achievements.", type: 3 },
+    { text: "I set aside my true feelings to project an image of success and competence.", type: 3 },
+    { text: "I feel anxious when I am not being productive, as if I am disappearing.", type: 3 },
     
-    // Type 4 - Core Fear: Having no identity. Core Desire: To be unique
-    { text: "I feel like something essential is missing in me that others seem to have naturally.", type: 4 },
-    { text: "I am drawn to depth and authenticity, even if it means experiencing painful emotions.", type: 4 },
-    { text: "I fear being ordinary or just like everyone else.", type: 4 },
+    // Type 4 (Fear: No identity | Desire: To be unique)
+    { text: "I hold onto my melancholy because I fear that being happy might make me 'ordinary'.", type: 4 },
+    { text: "I feel a sense of envy because others seem to have a happiness that is missing in me.", type: 4 },
+    { text: "I emphasize my differences because I am terrified of having no unique identity.", type: 4 },
     
-    // Type 5 - Core Fear: Being incompetent/depleted. Core Desire: Competence
-    { text: "I protect my time and energy because I fear being overwhelmed or drained by demands.", type: 5 },
-    { text: "Knowledge and expertise feel like my most valuable resources and sources of security.", type: 5 },
-    { text: "I prefer to withdraw and observe rather than engage emotionally, especially when I feel unprepared.", type: 5 },
+    // Type 5 (Fear: Incompetence | Desire: Capability)
+    { text: "I withdraw from others not because I dislike them, but because I fear being overwhelmed and depleted.", type: 5 },
+    { text: "I hoard knowledge and resources because I fear I will not have enough to survive on my own.", type: 5 },
+    { text: "I observe life from a distance to ensure I understand it before I risk participating.", type: 5 },
     
-    // Type 6 - Core Fear: Being without support/guidance. Core Desire: Security
-    { text: "I tend to anticipate worst-case scenarios and prepare for potential problems.", type: 6 },
-    { text: "I test people's loyalty and trustworthiness before fully committing to relationships.", type: 6 },
-    { text: "I feel anxious when facing uncertainty and seek reassurance from trusted authorities or systems.", type: 6 },
+    // Type 6 (Fear: No support | Desire: Security)
+    { text: "I constantly plan for worst-case scenarios because I don't trust the world to be safe.", type: 6 },
+    { text: "I seek alliances and authority because I doubt my own ability to handle life alone.", type: 6 },
+    { text: "My loyalty is often a strategy to ensure I am not abandoned or attacked.", type: 6 },
     
-    // Type 7 - Core Fear: Being trapped in pain/deprivation. Core Desire: Satisfaction
-    { text: "I avoid dwelling on negative emotions by focusing on positive possibilities and future plans.", type: 7 },
-    { text: "I struggle with commitment because I fear missing out on better opportunities.", type: 7 },
-    { text: "I keep my options open and feel restricted when locked into one path.", type: 7 },
+    // Type 7 (Fear: Pain/Deprivation | Desire: Satisfaction)
+    { text: "I fill my schedule with activities because I am terrified of sitting with emotional pain or boredom.", type: 7 },
+    { text: "I reframe negatives into positives instantly to avoid feeling trapped or limited.", type: 7 },
+    { text: "I constantly seek the 'next best thing' because I fear being deprived of satisfaction.", type: 7 },
     
-    // Type 8 - Core Fear: Being controlled/vulnerable. Core Desire: Self-protection
-    { text: "I need to feel in control of my environment and resist being vulnerable or dependent on others.", type: 8 },
-    { text: "I respect strength and directness, and have little patience for weakness or manipulation.", type: 8 },
-    { text: "I would rather confront conflict head-on than let issues fester unresolved.", type: 8 },
+    // Type 8 (Fear: Being controlled | Desire: Protection/Control)
+    { text: "I assert control over my environment because I am terrified of being vulnerable or harmed.", type: 8 },
+    { text: "I deny my own weakness and need for others to ensure no one can use it against me.", type: 8 },
+    { text: "I push against boundaries to test who is strong enough to be trusted.", type: 8 },
     
-    // Type 9 - Core Fear: Conflict/separation. Core Desire: Peace
-    { text: "I go along with others' preferences to maintain harmony, even when I have different opinions.", type: 9 },
-    { text: "I numb out or zone out when faced with conflict or uncomfortable emotions.", type: 9 },
-    { text: "I lose track of my own priorities because I merge with other people's agendas.", type: 9 }
+    // Type 9 (Fear: Separation/Conflict | Desire: Peace/Stability)
+    { text: "I go along with others because I fear that asserting myself will cause separation or conflict.", type: 9 },
+    { text: "I numb myself to my own priorities to maintain an inner sense of peace.", type: 9 },
+    { text: "I merge with others' agendas because it feels safer than standing alone.", type: 9 }
 ];
 
 const typeDescriptions = {
@@ -435,7 +463,7 @@ const typeDescriptions = {
     description: "Ethical, orderly, and goal-oriented. You strive for integrity and improvement.",
     strengths: ["Dependable and conscientious", "Discerning with high standards", "Morally principled", "Detail-oriented"],
     challenges: ["Critical of self and others", "Perfectionistic tendencies", "Difficulty accepting imperfection"],
-    motivations: "Clear instruction, ethical environments, and goal-setting.",
+    motivations: "To be right, to strive higher, and to be consistent with your ideals.",
     atBest: "Wise, discerning, realistic, and morally heroic."
   },
   2: {
@@ -444,7 +472,7 @@ const typeDescriptions = {
     description: "Sincere, empathetic, and generous. You seek to love and be loved.",
     strengths: ["Unselfish and caring", "Adaptable and supportive", "Optimistic and warm", "Anticipates needs"],
     challenges: ["May use flattery as defense", "Possessive in relationships", "Neglects own needs"],
-    motivations: "Appreciation, recognition, and encouraging environments.",
+    motivations: "To be loved, to express feelings for others, and to be needed.",
     atBest: "Genuinely caring, unselfish, and empowering to others."
   },
   3: {
@@ -453,7 +481,7 @@ const typeDescriptions = {
     description: "Charming, poised, and action-oriented. You focus on achievement and success.",
     strengths: ["Authentic when secure", "Inspiring and motivating", "Efficient and productive", "Determined"],
     challenges: ["Status-conscious", "Workaholic tendencies", "Disconnection from feelings"],
-    motivations: "Success, recognition, and goal achievement.",
+    motivations: "To be affirmed, to distinguish yourself, and to have attention.",
     atBest: "Authentic, inspiring, efficient, and balanced."
   },
   4: {
@@ -462,7 +490,7 @@ const typeDescriptions = {
     description: "Artistic, innovative, and self-aware. You desire to express your unique identity.",
     strengths: ["Creative and original", "Emotionally honest", "Inspired", "Deeply empathetic"],
     challenges: ["Disdain for the ordinary", "Struggles with envy", "Moody and withdrawn"],
-    motivations: "Authenticity, depth, and creative expression.",
+    motivations: "To express yourself, to create beauty, and to withdraw to protect your self-image.",
     atBest: "Creative, inspired, and able to transform pain into beauty."
   },
   5: {
@@ -471,7 +499,7 @@ const typeDescriptions = {
     description: "Insightful, curious, and perceptive. You value autonomy and competence.",
     strengths: ["Visionary thinking", "Novel perspectives", "Focused and analytical", "Objective"],
     challenges: ["Detached and isolated", "Overly cerebral", "Emotional guarding"],
-    motivations: "Knowledge, competence, and privacy.",
+    motivations: "To possess knowledge, to understand the environment, and to avoid intrusion.",
     atBest: "Visionary, innovative, and able to see the big picture."
   },
   6: {
@@ -480,7 +508,7 @@ const typeDescriptions = {
     description: "Reliable, trustworthy, and committed. You value security and support.",
     strengths: ["Courageous when secure", "Stable and committed", "Self-reliant", "Responsible"],
     challenges: ["Overly cautious", "Defensive", "Anxious", "Worst-case thinking"],
-    motivations: "Security, trust, and organized environments.",
+    motivations: "To have security, to feel supported by others, and to test the attitudes of others toward you.",
     atBest: "Courageous, stable, and trusting of self and others."
   },
   7: {
@@ -489,7 +517,7 @@ const typeDescriptions = {
     description: "Fun-loving, impulsive, and spontaneous. You seek variety and freedom.",
     strengths: ["Joyful and optimistic", "Appreciative", "Satisfied", "Energetic"],
     challenges: ["Commitment issues", "Overextended", "Avoids pain", "Scattered"],
-    motivations: "Variety, freedom, and new experiences.",
+    motivations: "To maintain their freedom and happiness, to avoid missing out on worthwhile experiences.",
     atBest: "Joyful, present, and satisfied."
   },
   8: {
@@ -498,7 +526,7 @@ const typeDescriptions = {
     description: "Authoritative, assertive, and powerful. You seek to protect yourself and others.",
     strengths: ["Strong and protective", "Justice-oriented", "Decisive", "Natural leader"],
     challenges: ["Aggressive", "Confrontational", "Excessive", "Intimidating"],
-    motivations: "Power, autonomy, and impact.",
+    motivations: "To be self-reliant, to prove your strength and resist weakness, and to be in control.",
     atBest: "Strong, generous, and a champion for justice."
   },
   9: {
@@ -507,7 +535,7 @@ const typeDescriptions = {
     description: "Passive, inclusive, and stable. You seek internal and external harmony.",
     strengths: ["Unifying", "Inclusive", "Calm and reassuring", "Patient"],
     challenges: ["Oversimplifies problems", "Avoids conflict", "Procrastinates"],
-    motivations: "Harmony, peace, and stability.",
+    motivations: "To create harmony in your environment, to avoid conflicts and tension, and to preserve things as they are.",
     atBest: "Peaceful, inclusive, and able to see all perspectives."
   }
 };
@@ -519,10 +547,7 @@ class Quiz {
     constructor() {
         this.questions = [];
         this.currentQ = 0;
-        this.scores = {}; // type -> total score
-        
-        // Initialize scores
-        for(let i=1; i<=9; i++) this.scores[i] = 0;
+        this.userResponses = []; // Stores actual answers {qIndex, value}
         
         this.dom = {
             screens: {
@@ -532,7 +557,8 @@ class Quiz {
             },
             progress: document.getElementById('progressBar'),
             qText: document.getElementById('qText'),
-            qCount: document.getElementById('qCount')
+            qCount: document.getElementById('qCount'),
+            prevBtn: document.getElementById('prevBtn')
         };
     }
 
@@ -546,8 +572,8 @@ class Quiz {
     }
 
     start() {
-        // Shuffle questions so types aren't clustered
         this.questions = this.shuffle([...rawStatements]);
+        this.userResponses = new Array(this.questions.length).fill(null);
         this.switchScreen('quiz');
         this.renderQuestion();
     }
@@ -563,6 +589,10 @@ class Quiz {
         this.dom.qCount.textContent = `Statement ${this.currentQ + 1} of ${this.questions.length}`;
         this.dom.progress.style.width = `${((this.currentQ) / this.questions.length) * 100}%`;
         
+        // Handle Back Button Visibility
+        this.dom.prevBtn.disabled = this.currentQ === 0;
+        this.dom.prevBtn.style.opacity = this.currentQ === 0 ? '0.5' : '1';
+        
         // Fade effect
         this.dom.qText.style.opacity = 0;
         setTimeout(() => {
@@ -572,10 +602,8 @@ class Quiz {
     }
 
     rate(value) {
-        // Add value to the specific type for this question
-        const type = this.questions[this.currentQ].type;
-        this.scores[type] += value;
-
+        // Save response specifically to this question index
+        this.userResponses[this.currentQ] = value;
         this.next();
     }
 
@@ -590,30 +618,33 @@ class Quiz {
 
     prev() {
         if (this.currentQ > 0) {
-            alert("For accuracy, please continue forward. If you made a mistake, you can retake the assessment at the end.");
+            this.currentQ--;
+            this.renderQuestion();
         }
     }
 
     finish() {
-        // Find Top Type
-        let maxScore = -1;
-        let winner = 1;
-        
-        // Convert scores to array for sorting
-        const sortedScores = Object.entries(this.scores)
-            .sort(([,a], [,b]) => b - a);
-            
-        winner = parseInt(sortedScores[0][0]);
-        maxScore = sortedScores[0][1];
+        // Calculate scores ONLY at the end to ensure accuracy
+        let scores = {};
+        for(let i=1; i<=9; i++) scores[i] = 0;
 
-        this.renderResults(winner, this.scores);
+        this.userResponses.forEach((val, index) => {
+            if (val !== null) {
+                const type = this.questions[index].type;
+                scores[type] += val;
+            }
+        });
+
+        // Find Top Type
+        const sortedScores = Object.entries(scores).sort(([,a], [,b]) => b - a);
+        const winner = parseInt(sortedScores[0][0]);
+
+        this.renderResults(winner, scores);
     }
 
     renderResults(winnerType, allScores) {
         const data = typeDescriptions[winnerType];
-        
-        // Calculate percentages relative to max possible score (3 questions * 5 points = 15)
-        const MAX_POSSIBLE = 15;
+        const MAX_POSSIBLE = 15; // 3 questions * 5 points
 
         // Top 3 Matches
         const sortedScores = Object.entries(allScores)
@@ -629,28 +660,26 @@ class Quiz {
             </div>
 
             <div class="data-viz">
-                <h4 style="margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; color: var(--neutral-mid);">Top Matches (Fact-Driven Analysis)</h4>
+                <h4 style="margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; color: var(--neutral-mid);">Likelihood Analysis</h4>
                 ${sortedScores.map(([type, score]) => `
                     <div class="chart-row">
                         <div class="chart-label">T${type}</div>
                         <div class="chart-bar-container">
                             <div class="chart-bar ${parseInt(type) === winnerType ? 'top-result' : ''}" style="width: ${(score / MAX_POSSIBLE) * 100}%"></div>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--neutral-mid);">${score}</div>
+                        <div style="font-size: 0.75rem; color: var(--neutral-mid);">${Math.round((score/MAX_POSSIBLE)*100)}%</div>
                     </div>
                 `).join('')}
             </div>
 
             <div class="details-grid">
                 <div class="detail-card">
-                    <h3>At Your Best</h3>
-                    <p>${data.atBest}</p>
+                    <h3>Core Motivation</h3>
+                    <p>${data.motivations}</p>
                 </div>
                 <div class="detail-card">
-                    <h3>Key Strengths</h3>
-                    <ul>
-                        ${data.strengths.map(s => `<li>${s}</li>`).join('')}
-                    </ul>
+                    <h3>At Your Best</h3>
+                    <p>${data.atBest}</p>
                 </div>
                 <div class="detail-card">
                     <h3>Growth Areas</h3>
@@ -661,8 +690,8 @@ class Quiz {
             </div>
 
             <div class="citation">
-                <p>Based on Riso-Hudson Enneagram Type Indicator (RHETI) methodology concepts.</p>
-                <div style="margin-top:8px;">Source: Blose, T. M., et al. (2023). <em>The Enneagram and its application in medical education.</em></div>
+                <p>Based on Riso-Hudson Enneagram Type Indicator (RHETI) motivation concepts.</p>
+                <div style="margin-top:8px;">Source: Blose, T. M., et al. (2023). <em>The Enneagram in medical education.</em></div>
             </div>
 
             <div style="margin-top: 32px; text-align: center;">
