@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enneagram Assessment | BGB Group</title>
+    <meta name="description" content="A professional, standalone Enneagram personality assessment.">
+    <style>
+        /* --- BRAND PALETTE --- */
+        :root {
+            --primary: #36069A;       /* Purple */
+            --secondary: #DE6399;     /* Pink */
+            --dark: #020C28;          /* Navy */
+            --accent: #4ADEDE;        /* Teal */
+            --neutral-light: #F8F9FA;
+            --neutral-dark: #212529;
+            --neutral-mid: #6C757D;
+            --white: #FFFFFF;
+            --shadow: 0 8px 32px rgba(2, 12, 40, 0.15);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--dark);
+            background-image: linear-gradient(135deg, var(--dark) 0%, #1a0b3b 100%);
+            color: var(--neutral-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* --- LAYOUT --- */
+        .app-container {
+            background: var(--white);
+            width: 100%;
+            max-width: 700px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--primary);
+            color: var(--white);
+            padding: 24px 32px;
+            position: relative;
+        }
+
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+        .subtitle { opacity: 0.9; font-size: 0.9rem; font-weight: 300; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container {
+            height: 6px;
+            background: #E9ECEF;
+            width: 100%;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* --- CONTENT AREAS --- */
+        .view-section {
+            padding: 32px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- INTRO VIEW --- */
+        .intro-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            gap: 24px;
+        }
+
+        .intro-icon {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 16px;
+        }
+
+        /* --- QUIZ VIEW --- */
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--neutral-mid);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 24px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: var(--white);
+            border: 2px solid #E9ECEF;
+            padding: 16px 20px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            position: relative;
+            color: var(--neutral-dark);
+            outline: none;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: #F8F9FF;
+            transform: translateX(4px);
+        }
+
+        .option-btn:focus-visible {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(74, 222, 222, 0.4);
+        }
+
+        .option-btn.selected {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .nav-controls {
+            margin-top: auto;
+            padding-top: 32px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* --- RESULTS VIEW --- */
+        .results-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #E9ECEF;
+        }
+
+        .type-badge {
+            display: inline-block;
+            background: var(--dark);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .result-title {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .data-viz {
+            margin: 24px 0;
+            background: var(--neutral-light);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .chart-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .chart-label { width: 30px; font-weight: bold; color: var(--neutral-mid); }
+        .chart-bar-container { flex: 1; height: 12px; background: #E9ECEF; border-radius: 6px; overflow: hidden; margin: 0 10px; }
+        .chart-bar { height: 100%; background: var(--primary); border-radius: 6px; width: 0; transition: width 1s ease-out; }
+        .chart-bar.top-result { background: var(--secondary); }
+        
+        .details-grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .detail-card {
+            background: var(--neutral-light);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .detail-card h3 { color: var(--dark); font-size: 1.1rem; margin-bottom: 12px; }
+        .detail-card ul { padding-left: 20px; }
+        .detail-card li { margin-bottom: 6px; color: #495057; }
+
+        /* --- BUTTONS --- */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: #c94b82;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(222, 99, 153, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--neutral-mid);
+            color: var(--neutral-mid);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--dark);
+            color: var(--dark);
+        }
+        
+        .citation {
+            font-size: 0.75rem;
+            color: var(--neutral-mid);
+            margin-top: 32px;
+            text-align: center;
+            padding: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .citation a { color: var(--primary); text-decoration: none; }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- MOBILE --- */
+        @media (max-width: 600px) {
+            .app-container { min-height: 100vh; border-radius: 0; }
+            .view-section { padding: 20px; }
+            .question-text { font-size: 1.1rem; }
+            .option-btn { padding: 14px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container" aria-live="polite">
+    <header>
+        <h1>Enneagram Assessment</h1>
+        <div class="subtitle">BGB Group | Fact-Driven Discovery</div>
+    </header>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- START SCREEN -->
+    <div id="startScreen" class="view-section">
+        <div class="intro-content">
+            <div>
+                <div class="intro-icon">★</div>
+                <h2 style="color: var(--dark); margin-bottom: 12px;">Discover Your Core Type</h2>
+                <p style="color: var(--neutral-mid); max-width: 500px; margin: 0 auto;">
+                    This professional assessment uses the hermeneutic circle of understanding—interpreting parts of your behavior to reveal the whole of your personality.
+                </p>
+            </div>
+            <ul style="text-align: left; max-width: 400px; margin: 0 auto; list-style: none; color: var(--neutral-dark);">
+                <li style="margin-bottom: 10px;">✓ <strong>27 Questions:</strong> Concise and impactful.</li>
+                <li style="margin-bottom: 10px;">✓ <strong>Holistic:</strong> Analyzes motivations, not just behaviors.</li>
+                <li style="margin-bottom: 10px;">✓ <strong>Secure:</strong> No data leaves this device.</li>
+            </ul>
+            <button class="btn btn-primary" onclick="quiz.start()" style="width: 100%; max-width: 300px; margin: 20px auto;">Begin Assessment</button>
+        </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quizScreen" class="view-section hidden">
+        <div class="question-meta">
+            <span id="qCount">Question 1 of 27</span>
+            <span id="qCategory">Motivation</span>
+        </div>
+        
+        <h2 id="qText" class="question-text">Loading...</h2>
+        
+        <div id="optionsContainer" class="options-grid">
+            <!-- Options injected by JS -->
+        </div>
+
+        <div class="nav-controls">
+            <button class="btn btn-outline" id="prevBtn" onclick="quiz.prev()">Back</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="quiz.next()" disabled>Next</button>
+        </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="resultsScreen" class="view-section hidden">
+        <!-- Injected by JS -->
+    </div>
+</div>
+
+<script>
+/**
+ * Data Structure:
+ * Each question maps options directly to Enneagram Types (1-9).
+ */
+const questions = [
+  {
+    text: "When approaching a task or project, I typically:",
+    options: [
+      { text: "Focus on doing it the right way with high standards", type: 1 },
+      { text: "Consider how it will help others and meet their needs", type: 2 },
+      { text: "Set clear goals and work efficiently to achieve them", type: 3 },
+      { text: "Look for unique or creative approaches", type: 4 },
+      { text: "Analyze it thoroughly and gather information first", type: 5 }
+    ]
+  },
+  {
+    text: "In social situations, I tend to:",
+    options: [
+      { text: "Ensure everyone is included and comfortable", type: 9 },
+      { text: "Be cautious until I trust the environment", type: 6 },
+      { text: "Bring energy and look for fun opportunities", type: 7 },
+      { text: "Take charge when needed and protect others", type: 8 },
+      { text: "Maintain high standards for proper behavior", type: 1 }
+    ]
+  },
+  {
+    text: "My primary motivation in life is to:",
+    options: [
+      { text: "Be helpful and appreciated by others", type: 2 },
+      { text: "Achieve success and be admired", type: 3 },
+      { text: "Express my authentic self and individuality", type: 4 },
+      { text: "Understand and master knowledge", type: 5 },
+      { text: "Feel secure and supported", type: 6 }
+    ]
+  },
+  {
+    text: "When stressed, I tend to:",
+    options: [
+      { text: "Become more critical and perfectionistic", type: 1 },
+      { text: "Overextend myself helping others", type: 2 },
+      { text: "Work harder and become more image-conscious", type: 3 },
+      { text: "Withdraw and feel misunderstood", type: 4 },
+      { text: "Isolate and detach from others", type: 5 }
+    ]
+  },
+  {
+    text: "People often describe me as:",
+    options: [
+      { text: "Spontaneous and optimistic", type: 7 },
+      { text: "Strong and decisive", type: 8 },
+      { text: "Easy-going and accepting", type: 9 },
+      { text: "Principled and responsible", type: 1 },
+      { text: "Warm and generous", type: 2 }
+    ]
+  },
+  {
+    text: "My biggest challenge is:",
+    options: [
+      { text: "Being too hard on myself and others", type: 1 },
+      { text: "Neglecting my own needs for others", type: 2 },
+      { text: "Overworking and losing touch with feelings", type: 3 },
+      { text: "Feeling envious and emotionally intense", type: 4 },
+      { text: "Being too detached and isolated", type: 5 }
+    ]
+  },
+  {
+    text: "In decision-making, I:",
+    options: [
+      { text: "Question and analyze potential problems", type: 6 },
+      { text: "Keep options open and avoid commitment", type: 7 },
+      { text: "Make quick, assertive decisions", type: 8 },
+      { text: "Avoid conflict and seek consensus", type: 9 },
+      { text: "Consider ethical implications carefully", type: 1 }
+    ]
+  },
+  {
+    text: "What matters most to me is:",
+    options: [
+      { text: "Being needed and appreciated", type: 2 },
+      { text: "Being successful and recognized", type: 3 },
+      { text: "Being authentic and unique", type: 4 },
+      { text: "Being knowledgeable and competent", type: 5 },
+      { text: "Being secure and loyal", type: 6 }
+    ]
+  },
+  {
+    text: "My approach to rules and authority is:",
+    options: [
+      { text: "I follow rules and have high ethical standards", type: 1 },
+      { text: "I adapt based on what helps others", type: 2 },
+      { text: "I follow rules when they support my goals", type: 3 },
+      { text: "I question rules if they stifle individuality", type: 4 },
+      { text: "I analyze whether rules make logical sense", type: 5 }
+    ]
+  },
+  {
+    text: "When it comes to planning:",
+    options: [
+      { text: "I see possibilities and keep options open", type: 7 },
+      { text: "I prefer direct action over planning", type: 8 },
+      { text: "I go with the flow and adapt as needed", type: 9 },
+      { text: "I create detailed, organized plans", type: 1 },
+      { text: "I plan around others' needs", type: 2 }
+    ]
+  },
+  {
+    text: "My core fear is:",
+    options: [
+      { text: "Being wrong or corrupt", type: 1 },
+      { text: "Being unloved or unwanted", type: 2 },
+      { text: "Being worthless or failing", type: 3 },
+      { text: "Having no identity or significance", type: 4 },
+      { text: "Being incompetent or overwhelmed", type: 5 }
+    ]
+  },
+  {
+    text: "At my best, I am:",
+    options: [
+      { text: "Loyal, stable, and courageous", type: 6 },
+      { text: "Joyful, appreciative, and satisfied", type: 7 },
+      { text: "Strong, generous, and protective", type: 8 },
+      { text: "Peaceful, inclusive, and harmonious", type: 9 },
+      { text: "Wise, discerning, and principled", type: 1 }
+    ]
+  },
+  {
+    text: "In conflict, I typically:",
+    options: [
+      { text: "Try to fix the problem and find the right solution", type: 1 },
+      { text: "Focus on maintaining the relationship", type: 2 },
+      { text: "Work toward a practical resolution", type: 3 },
+      { text: "Feel deeply affected and may withdraw", type: 4 },
+      { text: "Detach emotionally and analyze objectively", type: 5 }
+    ]
+  },
+  {
+    text: "My relationship with emotions is:",
+    options: [
+      { text: "I feel anxious and need reassurance", type: 6 },
+      { text: "I avoid negative emotions and focus on positive", type: 7 },
+      { text: "I suppress vulnerability and stay strong", type: 8 },
+      { text: "I merge with others' emotions to keep peace", type: 9 },
+      { text: "I control emotions to maintain composure", type: 1 }
+    ]
+  },
+  {
+    text: "People might criticize me for being:",
+    options: [
+      { text: "Too helpful or intrusive", type: 2 },
+      { text: "Too focused on image and achievement", type: 3 },
+      { text: "Too moody or self-absorbed", type: 4 },
+      { text: "Too distant or uninvolved", type: 5 },
+      { text: "Too anxious or skeptical", type: 6 }
+    ]
+  },
+  {
+    text: "My work style is characterized by:",
+    options: [
+      { text: "Thoroughness and attention to detail", type: 1 },
+      { text: "Collaboration and supporting others", type: 2 },
+      { text: "Efficiency and results-orientation", type: 3 },
+      { text: "Creativity and personal expression", type: 4 },
+      { text: "Independence and deep focus", type: 5 }
+    ]
+  },
+  {
+    text: "What energizes me is:",
+    options: [
+      { text: "Exploring new ideas and experiences", type: 7 },
+      { text: "Taking on challenges and being in control", type: 8 },
+      { text: "Maintaining harmony and stability", type: 9 },
+      { text: "Improving things and doing quality work", type: 1 },
+      { text: "Making a positive difference for others", type: 2 }
+    ]
+  },
+  {
+    text: "My childhood experience taught me to:",
+    options: [
+      { text: "Be responsible and avoid making mistakes", type: 1 },
+      { text: "Be helpful and earn love through giving", type: 2 },
+      { text: "Be successful and valuable through achievement", type: 3 },
+      { text: "Be different and express my uniqueness", type: 4 },
+      { text: "Be self-reliant and not need others", type: 5 }
+    ]
+  },
+  {
+    text: "When facing uncertainty, I:",
+    options: [
+      { text: "Seek guidance and support from trusted sources", type: 6 },
+      { text: "Look for exciting possibilities and stay optimistic", type: 7 },
+      { text: "Take charge and confront it directly", type: 8 },
+      { text: "Go with the flow and avoid stirring things up", type: 9 },
+      { text: "Prepare thoroughly and plan for contingencies", type: 1 }
+    ]
+  },
+  {
+    text: "I show love and care by:",
+    options: [
+      { text: "Anticipating needs and offering help", type: 2 },
+      { text: "Providing for and achieving goals together", type: 3 },
+      { text: "Sharing deep feelings and being present", type: 4 },
+      { text: "Sharing knowledge and respecting space", type: 5 },
+      { text: "Being loyal and committed", type: 6 }
+    ]
+  },
+  {
+    text: "My ideal workplace would be:",
+    options: [
+      { text: "Fun, innovative, and full of variety", type: 7 },
+      { text: "Direct, challenging, and action-oriented", type: 8 },
+      { text: "Peaceful, collaborative, and stable", type: 9 },
+      { text: "Organized, ethical, and high-quality", type: 1 },
+      { text: "Supportive, team-focused, and appreciative", type: 2 }
+    ]
+  },
+  {
+    text: "When receiving feedback, I:",
+    options: [
+      { text: "Take it seriously and want to improve", type: 1 },
+      { text: "Consider how it affects the relationship", type: 2 },
+      { text: "Evaluate if it helps me succeed", type: 3 },
+      { text: "May take it personally and feel hurt", type: 4 },
+      { text: "Analyze its validity objectively", type: 5 }
+    ]
+  },
+  {
+    text: "I struggle with:",
+    options: [
+      { text: "Trusting others and managing anxiety", type: 6 },
+      { text: "Committing and staying focused", type: 7 },
+      { text: "Showing vulnerability and admitting weakness", type: 8 },
+      { text: "Asserting my needs and making decisions", type: 9 },
+      { text: "Accepting imperfection in myself and others", type: 1 }
+    ]
+  },
+  {
+    text: "In a team, I naturally:",
+    options: [
+      { text: "Ensure quality standards are met", type: 1 },
+      { text: "Support team members and boost morale", type: 2 },
+      { text: "Drive toward goals and maintain momentum", type: 3 },
+      { text: "Bring creativity and unique perspectives", type: 4 },
+      { text: "Provide analysis and expertise", type: 5 }
+    ]
+  },
+  {
+    text: "What I value most in relationships is:",
+    options: [
+      { text: "Trust and reliability", type: 6 },
+      { text: "Adventure and shared enjoyment", type: 7 },
+      { text: "Honesty and strength", type: 8 },
+      { text: "Harmony and acceptance", type: 9 },
+      { text: "Integrity and improvement", type: 1 }
+    ]
+  },
+  {
+    text: "My attention naturally goes to:",
+    options: [
+      { text: "Others' needs and how to help", type: 2 },
+      { text: "Goals, tasks, and achievements", type: 3 },
+      { text: "What's missing or what could be deeper", type: 4 },
+      { text: "Information, concepts, and understanding", type: 5 },
+      { text: "Potential problems and risks", type: 6 }
+    ]
+  },
+  {
+    text: "Looking at the big picture, I would say I:",
+    options: [
+      { text: "Seek variety, freedom, and possibilities", type: 7 },
+      { text: "Seek power, autonomy, and impact", type: 8 },
+      { text: "Seek peace, comfort, and stability", type: 9 },
+      { text: "Seek perfection, order, and righteousness", type: 1 },
+      { text: "Seek connection, appreciation, and to be needed", type: 2 }
+    ]
+  }
+];
+
+const typeDescriptions = {
+  1: {
+    name: "Type 1: The Reformer",
+    altNames: "Moralizer, Perfectionist",
+    description: "Ethical, orderly, and goal-oriented. You strive for integrity and improvement.",
+    strengths: ["Dependable and conscientious", "Discerning with high standards", "Morally principled", "Detail-oriented"],
+    challenges: ["Critical of self and others", "Perfectionistic tendencies", "Difficulty accepting imperfection"],
+    motivations: "Clear instruction, ethical environments, and goal-setting.",
+    atBest: "Wise, discerning, realistic, and morally heroic."
+  },
+  2: {
+    name: "Type 2: The Helper",
+    altNames: "Giver, Mentor",
+    description: "Sincere, empathetic, and generous. You seek to love and be loved.",
+    strengths: ["Unselfish and caring", "Adaptable and supportive", "Optimistic and warm", "Anticipates needs"],
+    challenges: ["May use flattery as defense", "Possessive in relationships", "Neglects own needs"],
+    motivations: "Appreciation, recognition, and encouraging environments.",
+    atBest: "Genuinely caring, unselfish, and empowering to others."
+  },
+  3: {
+    name: "Type 3: The Performer",
+    altNames: "Achiever, Producer",
+    description: "Charming, poised, and action-oriented. You focus on achievement and success.",
+    strengths: ["Authentic when secure", "Inspiring and motivating", "Efficient and productive", "Determined"],
+    challenges: ["Status-conscious", "Workaholic tendencies", "Disconnection from feelings"],
+    motivations: "Success, recognition, and goal achievement.",
+    atBest: "Authentic, inspiring, efficient, and balanced."
+  },
+  4: {
+    name: "Type 4: The Dreamer",
+    altNames: "Individualist, Romantic",
+    description: "Artistic, innovative, and self-aware. You desire to express your unique identity.",
+    strengths: ["Creative and original", "Emotionally honest", "Inspired", "Deeply empathetic"],
+    challenges: ["Disdain for the ordinary", "Struggles with envy", "Moody and withdrawn"],
+    motivations: "Authenticity, depth, and creative expression.",
+    atBest: "Creative, inspired, and able to transform pain into beauty."
+  },
+  5: {
+    name: "Type 5: The Observer",
+    altNames: "Investigator, Thinker",
+    description: "Insightful, curious, and perceptive. You value autonomy and competence.",
+    strengths: ["Visionary thinking", "Novel perspectives", "Focused and analytical", "Objective"],
+    challenges: ["Detached and isolated", "Overly cerebral", "Emotional guarding"],
+    motivations: "Knowledge, competence, and privacy.",
+    atBest: "Visionary, innovative, and able to see the big picture."
+  },
+  6: {
+    name: "Type 6: The Loyalist",
+    altNames: "Guardian, Team Player",
+    description: "Reliable, trustworthy, and committed. You value security and support.",
+    strengths: ["Courageous when secure", "Stable and committed", "Self-reliant", "Responsible"],
+    challenges: ["Overly cautious", "Defensive", "Anxious", "Worst-case thinking"],
+    motivations: "Security, trust, and organized environments.",
+    atBest: "Courageous, stable, and trusting of self and others."
+  },
+  7: {
+    name: "Type 7: The Enthusiast",
+    altNames: "Visionary, Epicure",
+    description: "Fun-loving, impulsive, and spontaneous. You seek variety and freedom.",
+    strengths: ["Joyful and optimistic", "Appreciative", "Satisfied", "Energetic"],
+    challenges: ["Commitment issues", "Overextended", "Avoids pain", "Scattered"],
+    motivations: "Variety, freedom, and new experiences.",
+    atBest: "Joyful, present, and satisfied."
+  },
+  8: {
+    name: "Type 8: The Protector",
+    altNames: "Boss, Challenger",
+    description: "Authoritative, assertive, and powerful. You seek to protect yourself and others.",
+    strengths: ["Strong and protective", "Justice-oriented", "Decisive", "Natural leader"],
+    challenges: ["Aggressive", "Confrontational", "Excessive", "Intimidating"],
+    motivations: "Power, autonomy, and impact.",
+    atBest: "Strong, generous, and a champion for justice."
+  },
+  9: {
+    name: "Type 9: The Peacemaker",
+    altNames: "Mediator, Peacekeeper",
+    description: "Passive, inclusive, and stable. You seek internal and external harmony.",
+    strengths: ["Unifying", "Inclusive", "Calm and reassuring", "Patient"],
+    challenges: ["Oversimplifies problems", "Avoids conflict", "Procrastinates"],
+    motivations: "Harmony, peace, and stability.",
+    atBest: "Peaceful, inclusive, and able to see all perspectives."
+  }
+};
+
+/**
+ * Quiz Logic Class
+ * Encapsulates state and DOM manipulation.
+ */
+class Quiz {
+    constructor() {
+        this.currentQ = 0;
+        this.answers = new Array(questions.length).fill(null);
+        this.dom = {
+            screens: {
+                start: document.getElementById('startScreen'),
+                quiz: document.getElementById('quizScreen'),
+                results: document.getElementById('resultsScreen')
+            },
+            progress: document.getElementById('progressBar'),
+            qText: document.getElementById('qText'),
+            qCount: document.getElementById('qCount'),
+            options: document.getElementById('optionsContainer'),
+            nextBtn: document.getElementById('nextBtn'),
+            prevBtn: document.getElementById('prevBtn')
+        };
+    }
+
+    start() {
+        this.switchScreen('quiz');
+        this.renderQuestion();
+    }
+
+    switchScreen(screenName) {
+        Object.values(this.dom.screens).forEach(el => el.classList.add('hidden'));
+        this.dom.screens[screenName].classList.remove('hidden');
+    }
+
+    renderQuestion() {
+        const q = questions[this.currentQ];
+        
+        // Update Meta
+        this.dom.qCount.textContent = `Question ${this.currentQ + 1} of ${questions.length}`;
+        this.dom.progress.style.width = `${((this.currentQ + 1) / questions.length) * 100}%`;
+        
+        // Update Text (Fade effect)
+        this.dom.qText.style.opacity = 0;
+        setTimeout(() => {
+            this.dom.qText.textContent = q.text;
+            this.dom.qText.style.opacity = 1;
+        }, 200);
+
+        // Render Options
+        this.dom.options.innerHTML = '';
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `option-btn ${this.answers[this.currentQ] === idx ? 'selected' : ''}`;
+            btn.textContent = opt.text;
+            btn.onclick = () => this.selectOption(idx);
+            
+            // Add slight delay for animation stagger
+            btn.style.animation = `fadeIn 0.3s ease-out ${idx * 0.05}s backwards`;
+            
+            this.dom.options.appendChild(btn);
+        });
+
+        // Controls
+        this.dom.prevBtn.style.visibility = this.currentQ === 0 ? 'hidden' : 'visible';
+        this.dom.nextBtn.disabled = this.answers[this.currentQ] === null;
+        this.dom.nextBtn.textContent = this.currentQ === questions.length - 1 ? 'Finish' : 'Next';
+    }
+
+    selectOption(optIdx) {
+        this.answers[this.currentQ] = optIdx;
+        
+        // Visual feedback
+        const buttons = this.dom.options.children;
+        Array.from(buttons).forEach((btn, i) => {
+            if (i === optIdx) btn.classList.add('selected');
+            else btn.classList.remove('selected');
+        });
+
+        this.dom.nextBtn.disabled = false;
+        
+        // Auto-advance preference (optional UX pattern)
+        if (this.currentQ < questions.length - 1) {
+             setTimeout(() => this.next(), 350); 
+        }
+    }
+
+    next() {
+        if (this.currentQ < questions.length - 1) {
+            this.currentQ++;
+            this.renderQuestion();
+        } else {
+            this.finish();
+        }
+    }
+
+    prev() {
+        if (this.currentQ > 0) {
+            this.currentQ--;
+            this.renderQuestion();
+        }
+    }
+
+    finish() {
+        const scores = {};
+        // Initialize scores
+        for (let i = 1; i <= 9; i++) scores[i] = 0;
+
+        // Calculate
+        this.answers.forEach((ansIdx, qIdx) => {
+            if (ansIdx !== null) {
+                const type = questions[qIdx].options[ansIdx].type;
+                scores[type]++;
+            }
+        });
+
+        // Find Top Type
+        let maxScore = -1;
+        let winner = 1;
+        for (const [type, score] of Object.entries(scores)) {
+            if (score > maxScore) {
+                maxScore = score;
+                winner = parseInt(type);
+            }
+        }
+
+        this.renderResults(winner, scores);
+    }
+
+    renderResults(winnerType, allScores) {
+        const data = typeDescriptions[winnerType];
+        
+        // Sort scores for chart
+        const sortedScores = Object.entries(allScores)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 3); // Top 3
+
+        const html = `
+            <div class="results-header">
+                <div class="type-badge">Highest Match</div>
+                <h2 class="result-title">${data.name}</h2>
+                <div class="subtitle">${data.altNames}</div>
+                <p style="margin-top: 16px; color: var(--neutral-mid);">${data.description}</p>
+            </div>
+
+            <div class="data-viz">
+                <h4 style="margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; color: var(--neutral-mid);">Top Matches (Fact-Driven Analysis)</h4>
+                ${sortedScores.map(([type, score]) => `
+                    <div class="chart-row">
+                        <div class="chart-label">T${type}</div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar ${parseInt(type) === winnerType ? 'top-result' : ''}" style="width: ${(score / 27) * 100}%"></div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--neutral-mid);">${score}</div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-card">
+                    <h3>At Your Best</h3>
+                    <p>${data.atBest}</p>
+                </div>
+                <div class="detail-card">
+                    <h3>Key Strengths</h3>
+                    <ul>
+                        ${data.strengths.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="detail-card">
+                    <h3>Growth Areas</h3>
+                    <ul>
+                        ${data.challenges.map(c => `<li>${c}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="citation">
+                Source: Blose, T. M., et al. (2023). <em>The Enneagram and its application in medical education.</em>
+                <a href="https://doi.org/10.1080/08998280.2022.2132591" target="_blank" rel="noopener">DOI link</a>
+            </div>
+
+            <div style="margin-top: 32px; text-align: center;">
+                <button class="btn btn-outline" onclick="location.reload()">Restart Assessment</button>
+            </div>
+        `;
+
+        this.dom.screens.results.innerHTML = html;
+        this.switchScreen('results');
+    }
+}
+
+// Initialize
+const quiz = new Quiz();
+</script>
+</body>
+</html>
