@@ -309,8 +309,8 @@
 
 <div class="app-container" aria-live="polite">
     <header>
-        <h1>Enneagram Assessment</h1>
-        <div class="subtitle">BGB Group | Fact-Driven Discovery</div>
+        <h1>Enneagram Assessment v2</h1>
+        <div class="subtitle">BGB Group | Motivation-Driven Analysis</div>
     </header>
 
     <div class="progress-container">
@@ -324,12 +324,12 @@
                 <div class="intro-icon">★</div>
                 <h2 style="color: var(--dark); margin-bottom: 12px;">Discover Your Core Type</h2>
                 <p style="color: var(--neutral-mid); max-width: 500px; margin: 0 auto;">
-                    This updated assessment uses a <strong>frequency scale</strong> to reduce bias. You will be presented with 27 statements. Rate how accurately each statement describes you.
+                    This revised assessment focuses on <strong>underlying motivations</strong> rather than surface behaviors. You will be presented with 27 statements about your internal experience and core drivers.
                 </p>
             </div>
             <ul style="text-align: left; max-width: 400px; margin: 0 auto; list-style: none; color: var(--neutral-dark);">
-                <li style="margin-bottom: 10px;">✓ <strong>Accurate:</strong> Evaluates each type independently.</li>
-                <li style="margin-bottom: 10px;">✓ <strong>Holistic:</strong> Analyzes motivations, not just behaviors.</li>
+                <li style="margin-bottom: 10px;">✓ <strong>Motivation-Focused:</strong> Captures WHY you do things, not just WHAT you do.</li>
+                <li style="margin-bottom: 10px;">✓ <strong>Core Fears & Desires:</strong> Based on Enneagram theory fundamentals.</li>
                 <li style="margin-bottom: 10px;">✓ <strong>Secure:</strong> No data leaves this device.</li>
             </ul>
             <button class="btn btn-primary" onclick="quiz.start()" style="width: 100%; max-width: 300px; margin: 20px auto;">Begin Assessment</button>
@@ -377,47 +377,55 @@
 
 <script>
 /**
- * REFACTORED DATA STRUCTURE
- * 27 Statements: 3 per type to ensure equal weight.
- * Shuffle implemented on init to prevent pattern recognition.
+ * REVISED DATA STRUCTURE - MOTIVATION-FOCUSED
+ * Questions now target core fears, desires, and internal experience
+ * rather than observable behaviors that could apply to multiple types.
  */
 const rawStatements = [
-    // Type 1
-    { text: "I have an internal critic that constantly tells me how I (and things around me) could be better.", type: 1 },
-    { text: "I struggle to relax until I know everything is done correctly and effectively.", type: 1 },
-    { text: "I feel a strong sense of responsibility to maintain high moral standards.", type: 1 },
-    // Type 2
-    { text: "I often prioritize the needs of others above my own, sometimes to my detriment.", type: 2 },
-    { text: "It is important to me that people feel supported and appreciate my help.", type: 2 },
-    { text: "I can be overly demonstrative with my affection to ensure connection.", type: 2 },
-    // Type 3
-    { text: "I am highly driven by goals and want to be recognized for my achievements.", type: 3 },
-    { text: "I can easily adapt my persona to fit the expectations of a specific group or situation.", type: 3 },
-    { text: "Efficiency is key; I hate wasting time on things that don't produce results.", type: 3 },
-    // Type 4
-    { text: "I often feel that something is missing in me that others seem to have.", type: 4 },
-    { text: "I value being unique and authentic, even if it means being misunderstood.", type: 4 },
-    { text: "My emotions are intense, and I often spend time exploring my internal world.", type: 4 },
-    // Type 5
-    { text: "I need a lot of private time to recharge and process information.", type: 5 },
-    { text: "I prefer to observe and understand a situation fully before participating.", type: 5 },
-    { text: "I often feel drained by others' emotional demands and withdraw to protect my energy.", type: 5 },
-    // Type 6
-    { text: "I am constantly scanning my environment for potential risks or problems.", type: 6 },
-    { text: "Loyalty is crucial to me; I need to know who I can truly trust.", type: 6 },
-    { text: "I often struggle with self-doubt and look to trusted authorities or systems for guidance.", type: 6 },
-    // Type 7
-    { text: "I love exploring new possibilities and have a hard time committing to just one option.", type: 7 },
-    { text: "I try to keep my mood positive and avoid dwelling on painful or boring topics.", type: 7 },
-    { text: "I am often planning my next adventure before the current one is even finished.", type: 7 },
-    // Type 8
-    { text: "I have a strong need to be in control of my own destiny and avoid being vulnerable.", type: 8 },
-    { text: "I am direct and assertive; I don't mind conflict if it clears the air.", type: 8 },
-    { text: "I naturally take charge of situations when leadership is lacking.", type: 8 },
-    // Type 9
-    { text: "I often go along with others to avoid conflict and keep the peace.", type: 9 },
-    { text: "I can see all sides of an issue, which sometimes makes it hard to make a definitive decision.", type: 9 },
-    { text: "I prefer a calm, stable environment and dislike feeling rushed or pressured.", type: 9 }
+    // Type 1 - Core Fear: Being corrupt/wrong. Core Desire: Integrity
+    { text: "I have an internal critic that points out flaws and tells me how things should be better or more correct.", type: 1 },
+    { text: "I feel a deep sense of responsibility to do the right thing, even when no one is watching.", type: 1 },
+    { text: "I become frustrated when people don't follow proper procedures or maintain standards.", type: 1 },
+    
+    // Type 2 - Core Fear: Being unwanted/unloved. Core Desire: To be loved
+    { text: "I feel most valuable when others need me or depend on my support.", type: 2 },
+    { text: "I struggle to say no when people ask for help, even when it's inconvenient for me.", type: 2 },
+    { text: "I worry that if I don't help others, they won't want me around.", type: 2 },
+    
+    // Type 3 - Core Fear: Being worthless. Core Desire: To be valuable
+    { text: "My sense of self-worth is closely tied to my accomplishments and how others perceive my success.", type: 3 },
+    { text: "I find it difficult to relax or be unproductive because it feels like wasting time.", type: 3 },
+    { text: "I am aware of how I present myself and adjust my image to fit different situations.", type: 3 },
+    
+    // Type 4 - Core Fear: Having no identity. Core Desire: To be unique
+    { text: "I feel like something essential is missing in me that others seem to have naturally.", type: 4 },
+    { text: "I am drawn to depth and authenticity, even if it means experiencing painful emotions.", type: 4 },
+    { text: "I fear being ordinary or just like everyone else.", type: 4 },
+    
+    // Type 5 - Core Fear: Being incompetent/depleted. Core Desire: Competence
+    { text: "I protect my time and energy because I fear being overwhelmed or drained by demands.", type: 5 },
+    { text: "Knowledge and expertise feel like my most valuable resources and sources of security.", type: 5 },
+    { text: "I prefer to withdraw and observe rather than engage emotionally, especially when I feel unprepared.", type: 5 },
+    
+    // Type 6 - Core Fear: Being without support/guidance. Core Desire: Security
+    { text: "I tend to anticipate worst-case scenarios and prepare for potential problems.", type: 6 },
+    { text: "I test people's loyalty and trustworthiness before fully committing to relationships.", type: 6 },
+    { text: "I feel anxious when facing uncertainty and seek reassurance from trusted authorities or systems.", type: 6 },
+    
+    // Type 7 - Core Fear: Being trapped in pain/deprivation. Core Desire: Satisfaction
+    { text: "I avoid dwelling on negative emotions by focusing on positive possibilities and future plans.", type: 7 },
+    { text: "I struggle with commitment because I fear missing out on better opportunities.", type: 7 },
+    { text: "I keep my options open and feel restricted when locked into one path.", type: 7 },
+    
+    // Type 8 - Core Fear: Being controlled/vulnerable. Core Desire: Self-protection
+    { text: "I need to feel in control of my environment and resist being vulnerable or dependent on others.", type: 8 },
+    { text: "I respect strength and directness, and have little patience for weakness or manipulation.", type: 8 },
+    { text: "I would rather confront conflict head-on than let issues fester unresolved.", type: 8 },
+    
+    // Type 9 - Core Fear: Conflict/separation. Core Desire: Peace
+    { text: "I go along with others' preferences to maintain harmony, even when I have different opinions.", type: 9 },
+    { text: "I numb out or zone out when faced with conflict or uncomfortable emotions.", type: 9 },
+    { text: "I lose track of my own priorities because I merge with other people's agendas.", type: 9 }
 ];
 
 const typeDescriptions = {
@@ -582,11 +590,6 @@ class Quiz {
 
     prev() {
         if (this.currentQ > 0) {
-            // NOTE: Simple prev logic doesn't subtract score easily in this architecture 
-            // without a history stack. For concise MVP, we just go back visually
-            // but in a real app we'd need to pop the last score.
-            // For now, let's just restart question render, user will overwrite score if we track history.
-            // Improved Logic:
             alert("For accuracy, please continue forward. If you made a mistake, you can retake the assessment at the end.");
         }
     }
@@ -626,14 +629,14 @@ class Quiz {
             </div>
 
             <div class="data-viz">
-                <h4 style="margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; color: var(--neutral-mid);">Likelihood Analysis</h4>
+                <h4 style="margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; color: var(--neutral-mid);">Top Matches (Fact-Driven Analysis)</h4>
                 ${sortedScores.map(([type, score]) => `
                     <div class="chart-row">
                         <div class="chart-label">T${type}</div>
                         <div class="chart-bar-container">
                             <div class="chart-bar ${parseInt(type) === winnerType ? 'top-result' : ''}" style="width: ${(score / MAX_POSSIBLE) * 100}%"></div>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--neutral-mid);">${Math.round((score/MAX_POSSIBLE)*100)}%</div>
+                        <div style="font-size: 0.75rem; color: var(--neutral-mid);">${score}</div>
                     </div>
                 `).join('')}
             </div>
@@ -659,7 +662,7 @@ class Quiz {
 
             <div class="citation">
                 <p>Based on Riso-Hudson Enneagram Type Indicator (RHETI) methodology concepts.</p>
-                <div style="margin-top:8px;">Source: Blose, T. M., et al. (2023). <em>The Enneagram in medical education.</em></div>
+                <div style="margin-top:8px;">Source: Blose, T. M., et al. (2023). <em>The Enneagram and its application in medical education.</em></div>
             </div>
 
             <div style="margin-top: 32px; text-align: center;">
