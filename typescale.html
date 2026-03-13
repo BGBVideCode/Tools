@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TypScale — Font Pairing + Type Scale Generator</title>
+  <meta name="description" content="Select digital fonts, generate type scales, and get accessibility-ready CSS for your design system." />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    body { overflow: hidden; }
+    select { appearance: none; -webkit-appearance: none; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #060f26; }
+    ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #36069A; }
+    input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #4ADEDE; cursor: pointer; }
+    @media (max-width: 768px) {
+      #sidebar { display: none; }
+      #mobile-bar { display: flex !important; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const RATIOS = {
+  "Minor Second": 1.067,
+  "Major Second": 1.125,
+  "Minor Third": 1.200,
+  "Major Third": 1.250,
+  "Perfect Fourth": 1.333,
+  "Augmented Fourth": 1.414,
+  "Perfect Fifth": 1.500,
+};
+
+const MOBILE_DOWNGRADE = {
+  "Minor Second": "Minor Second",
+  "Major Second": "Minor Second",
+  "Minor Third": "Major Second",
+  "Major Third": "Minor Third",
+  "Perfect Fourth": "Minor Third",
+  "Augmented Fourth": "Major Third",
+  "Perfect Fifth": "Perfect Fourth",
+};
+
+const HEADING_FONTS = [
+  { name: "Playfair Display", cat: "Serif", variable: false, pairedWith: "Source Sans 3" },
+  { name: "DM Serif Display", cat: "Serif", variable: false, pairedWith: "DM Sans" },
+  { name: "Fraunces", cat: "Serif", variable: true, pairedWith: "Work Sans" },
+  { name: "Cormorant Garamond", cat: "Serif", variable: false, pairedWith: "Lato" },
+  { name: "Syne", cat: "Sans", variable: true, pairedWith: "Figtree" },
+  { name: "Space Grotesk", cat: "Sans", variable: true, pairedWith: "Inter" },
+  { name: "Unbounded", cat: "Sans", variable: false, pairedWith: "Nunito Sans" },
+  { name: "Plus Jakarta Sans", cat: "Sans", variable: true, pairedWith: "Nunito Sans" },
+  { name: "Raleway", cat: "Sans", variable: true, pairedWith: "Open Sans" },
+  { name: "Montserrat", cat: "Sans", variable: true, pairedWith: "Open Sans" },
+  { name: "Outfit", cat: "Sans", variable: true, pairedWith: "DM Sans" },
+];
+
+const BODY_FONTS = [
+  { name: "Inter", cat: "Sans", variable: true },
+  { name: "DM Sans", cat: "Sans", variable: true },
+  { name: "Nunito Sans", cat: "Sans", variable: true },
+  { name: "Source Sans 3", cat: "Sans", variable: true },
+  { name: "Work Sans", cat: "Sans", variable: true },
+  { name: "Lato", cat: "Sans", variable: false },
+  { name: "Open Sans", cat: "Sans", variable: true },
+  { name: "Roboto", cat: "Sans", variable: true },
+  { name: "IBM Plex Sans", cat: "Sans", variable: false },
+  { name: "Figtree", cat: "Sans", variable: true },
+];
+
+const LINE_HEIGHTS = { tight: 1.2, normal: 1.5, relaxed: 1.75 };
+const LETTER_SPACINGS = { tight: "-0.025em", normal: "0em", loose: "0.05em" };
+
+const TYPE_LEVELS = [
+  { name: "Display", label: "display", steps: 5, isHeading: true, weight: 700 },
+  { name: "H1", label: "h1", steps: 4, isHeading: true, weight: 700 },
+  { name: "H2", label: "h2", steps: 3, isHeading: true, weight: 700 },
+  { name: "H3", label: "h3", steps: 2, isHeading: true, weight: 600 },
+  { name: "H4", label: "h4", steps: 1, isHeading: true, weight: 600 },
+  { name: "Body Large", label: "body-lg", steps: 0.5, isHeading: false, weight: 400 },
+  { name: "Body", label: "body", steps: 0, isHeading: false, weight: 400 },
+  { name: "Small", label: "small", steps: -1, isHeading: false, weight: 400 },
+  { name: "Caption", label: "caption", steps: -2, isHeading: false, weight: 400 },
+];
+
+const P = {
+  purple: "#36069A", pink: "#DE6399", navy: "#020C28", cyan: "#4ADEDE",
+  white: "#FFFFFF", offWhite: "#F8F9FA", dark: "#212529",
+  mid: "#6C757D", light: "#ADB5BD",
+};
+
+const FONT_FAMILIES = [
+  "Playfair+Display:ital,wght@0,400;0,600;0,700",
+  "DM+Serif+Display:ital@0",
+  "Fraunces:opsz,wght@9..144,300..900",
+  "Cormorant+Garamond:wght@400;500;600",
+  "Syne:wght@400..800",
+  "Space+Grotesk:wght@300..700",
+  "Unbounded:wght@400;600;700",
+  "Plus+Jakarta+Sans:wght@400;500;600;700;800",
+  "Raleway:wght@400;500;600;700",
+  "Montserrat:wght@400;500;600;700",
+  "Outfit:wght@300..700",
+  "Inter:wght@400;500;600",
+  "DM+Sans:opsz,wght@9..40,400;9..40,500",
+  "Nunito+Sans:wght@400;600",
+  "Source+Sans+3:wght@400;600",
+  "Work+Sans:wght@400;500;600",
+  "Lato:wght@400;700",
+  "Open+Sans:wght@400;600",
+  "Roboto:wght@400;500",
+  "IBM+Plex+Sans:wght@400;500",
+  "Figtree:wght@400;500;600",
+  "IBM+Plex+Mono:wght@400;500",
+];
+
+/* ─── Small components ─────────────────────────────── */
+
+const Badge = ({ text, color, bg: bgc }) => (
+  <span style={{
+    fontSize: "0.56rem", padding: "2px 6px", borderRadius: "3px",
+    background: bgc || `${color}1A`, color,
+    border: `1px solid ${color}33`,
+    fontWeight: 700, fontFamily: "monospace", letterSpacing: "0.04em",
+    whiteSpace: "nowrap",
+  }}>{text}</span>
+);
+
+const SideLabel = ({ children }) => (
+  <div style={{
+    fontSize: "0.56rem", fontWeight: 800, color: P.cyan,
+    textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "6px",
+  }}>{children}</div>
+);
+
+const Divider = () => (
+  <div style={{ height: "1px", background: "#1a2a4a", margin: "14px 0" }} />
+);
+
+const PresetBtn = ({ value, current, onClick, label }) => (
+  <button onClick={onClick} style={{
+    padding: "4px 9px", borderRadius: "4px", cursor: "pointer",
+    border: `1px solid ${current === value ? P.cyan : "#1E2D50"}`,
+    background: current === value ? P.cyan : "transparent",
+    color: current === value ? P.navy : P.light,
+    fontSize: "0.67rem", fontWeight: current === value ? 700 : 400,
+  }}>{label || value}</button>
+);
+
+/* ─── Main App ─────────────────────────────────────── */
+
+function TypScale() {
+  const [headingFont, setHeadingFont] = useState("Playfair Display");
+  const [bodyFont, setBodyFont] = useState("Source Sans 3");
+  const [ratio, setRatio] = useState("Perfect Fourth");
+  const [baseSize, setBaseSize] = useState(16);
+  const [lineHeight, setLineHeight] = useState("normal");
+  const [customLH, setCustomLH] = useState(1.5);
+  const [letterSpacing, setLetterSpacing] = useState("normal");
+  const [customLS, setCustomLS] = useState(0);
+  const [device, setDevice] = useState("desktop");
+  const [tab, setTab] = useState("scale");
+  const [fluid, setFluid] = useState(false);
+  const [fontsReady, setFontsReady] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  /* Load all Google Fonts once */
+  useEffect(() => {
+    const params = FONT_FAMILIES.map(f => `family=${f}`).join("&");
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = `https://fonts.googleapis.com/css2?${params}&display=swap`;
+    link.onload = () => setFontsReady(true);
+    document.head.appendChild(link);
+    return () => { try { document.head.removeChild(link); } catch (_) {} };
+  }, []);
+
+  /* Scale helpers */
+  const effectiveRatio = device === "mobile" ? MOBILE_DOWNGRADE[ratio] : ratio;
+  const effectiveBase = device === "mobile" ? Math.max(14, baseSize - 2) : baseSize;
+  const r = RATIOS[effectiveRatio];
+  const desktopR = RATIOS[ratio];
+  const mobileR = RATIOS[MOBILE_DOWNGRADE[ratio]];
+
+  const scale       = steps => effectiveBase * Math.pow(r, steps);
+  const desktopScale = steps => baseSize * Math.pow(desktopR, steps);
+  const mobileScale  = steps => Math.max(11, (baseSize - 2) * Math.pow(mobileR, steps));
+
+  const lh = lineHeight === "custom" ? customLH : LINE_HEIGHTS[lineHeight];
+  const ls = letterSpacing === "custom" ? `${customLS}em` : LETTER_SPACINGS[letterSpacing];
+
+  const bg        = darkMode ? "#111827" : P.white;
+  const textColor = darkMode ? "#F9FAFB" : P.dark;
+  const subColor  = darkMode ? "#9CA3AF" : P.mid;
+
+  const hfInfo = HEADING_FONTS.find(f => f.name === headingFont);
+  const bfInfo = BODY_FONTS.find(f => f.name === bodyFont);
+
+  const applyPairedFont = () => {
+    const paired = hfInfo?.pairedWith;
+    if (paired && BODY_FONTS.find(f => f.name === paired)) setBodyFont(paired);
+  };
+
+  /* CSS Generator */
+  const generateCSS = useCallback(() => {
+    const dr = RATIOS[ratio];
+    let out = `/* TypScale: ${ratio} (${dr}) */\n/* ${headingFont} + ${bodyFont} */\n\n`;
+    out += `@import url('https://fonts.googleapis.com/css2?family=${headingFont.replace(/ /g, "+")}:wght@400;600;700&family=${bodyFont.replace(/ /g, "+")}:wght@400;500;600&display=swap');\n\n`;
+    out += `:root {\n  --font-heading: '${headingFont}', Georgia, serif;\n  --font-body: '${bodyFont}', system-ui, sans-serif;\n  --font-code: 'IBM Plex Mono', Menlo, monospace;\n  --text-base: ${baseSize}px;\n  --lh: ${lh};\n  --ls: ${ls};\n\n`;
+    TYPE_LEVELS.forEach(l => {
+      const ds = desktopScale(l.steps);
+      const ms = mobileScale(l.steps);
+      if (fluid && l.steps > 0) {
+        const slope = (ds - ms) / (1440 - 375);
+        const intercept = ms - slope * 375;
+        out += `  --text-${l.label}: clamp(${ms.toFixed(3)}px, ${(slope * 100).toFixed(4)}vw + ${intercept.toFixed(3)}px, ${ds.toFixed(3)}px);\n`;
+      } else {
+        out += `  --text-${l.label}: ${ds.toFixed(2)}px; /* ${(ds / 16).toFixed(4)}rem */\n`;
+      }
+    });
+    out += `}\n\nbody {\n  font-family: var(--font-body);\n  font-size: var(--text-body);\n  line-height: var(--lh);\n  -webkit-font-smoothing: antialiased;\n}\n\nh1, h2, h3, h4 { font-family: var(--font-heading); }\nh1 { font-size: var(--text-h1); font-weight: 700; }\nh2 { font-size: var(--text-h2); font-weight: 700; }\nh3 { font-size: var(--text-h3); font-weight: 600; }\nh4 { font-size: var(--text-h4); font-weight: 600; }\n\n/* WCAG 1.4.4: body >= 16px | 1.4.10: no horizontal scroll at 320px */\n/* 1.4.12: Supports text-spacing overrides */`;
+    return out;
+  }, [ratio, headingFont, bodyFont, baseSize, lh, ls, fluid]);
+
+  const copyCSS = async () => {
+    try {
+      await navigator.clipboard.writeText(generateCSS());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (_) {}
+  };
+
+  /* ── Sidebar ── */
+  const Sidebar = () => (
+    <aside id="sidebar" style={{
+      width: "252px", flexShrink: 0,
+      background: "#060f26",
+      overflowY: "auto", padding: "16px",
+      borderRight: "1px solid #1a2a4a",
+      display: "flex", flexDirection: "column", gap: "0",
+    }}>
+
+      {/* Heading Font */}
+      <SideLabel>Heading Font</SideLabel>
+      <select value={headingFont} onChange={e => setHeadingFont(e.target.value)}
+        style={{ width: "100%", padding: "7px 10px", borderRadius: "6px", border: "1px solid #1E2D50", background: "#0a1940", color: P.offWhite, fontSize: "0.78rem", cursor: "pointer", outline: "none", marginBottom: "6px" }}>
+        {HEADING_FONTS.map(f => <option key={f.name} value={f.name}>{f.name}{f.variable ? " ⚡" : ""}</option>)}
+      </select>
+      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginBottom: hfInfo?.pairedWith ? "4px" : "0" }}>
+        <Badge text={hfInfo?.cat === "Serif" ? "Serif" : "Sans"} color={P.pink} />
+        {hfInfo?.variable && <Badge text="Variable" color={P.cyan} />}
+        <Badge text="Web Font" color="#4CAF50" />
+        <Badge text="OFL" color="#4CAF50" />
+      </div>
+      {hfInfo?.pairedWith && (
+        <button onClick={applyPairedFont} style={{
+          marginTop: "5px", fontSize: "0.6rem", padding: "3px 7px", borderRadius: "4px",
+          background: `${P.pink}20`, color: P.pink, border: `1px solid ${P.pink}44`,
+          cursor: "pointer", fontWeight: 700, textAlign: "left",
+        }}>
+          Pair with {hfInfo.pairedWith} →
+        </button>
+      )}
+
+      <Divider />
+
+      {/* Body Font */}
+      <SideLabel>Body Font</SideLabel>
+      <select value={bodyFont} onChange={e => setBodyFont(e.target.value)}
+        style={{ width: "100%", padding: "7px 10px", borderRadius: "6px", border: "1px solid #1E2D50", background: "#0a1940", color: P.offWhite, fontSize: "0.78rem", cursor: "pointer", outline: "none", marginBottom: "6px" }}>
+        {BODY_FONTS.map(f => <option key={f.name} value={f.name}>{f.name}{f.variable ? " ⚡" : ""}</option>)}
+      </select>
+      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+        <Badge text="Sans" color={P.pink} />
+        {bfInfo?.variable && <Badge text="Variable" color={P.cyan} />}
+        <Badge text="Web Font" color="#4CAF50" />
+        <Badge text="OFL" color="#4CAF50" />
+      </div>
+
+      <Divider />
+
+      {/* Scale */}
+      <SideLabel>Scale Ratio</SideLabel>
+      <select value={ratio} onChange={e => setRatio(e.target.value)}
+        style={{ width: "100%", padding: "7px 10px", borderRadius: "6px", border: "1px solid #1E2D50", background: "#0a1940", color: P.offWhite, fontSize: "0.78rem", cursor: "pointer", outline: "none", marginBottom: "6px" }}>
+        {Object.entries(RATIOS).map(([name, val]) => (
+          <option key={name} value={name}>{name} ({val})</option>
+        ))}
+      </select>
+      {device === "mobile" && ratio !== MOBILE_DOWNGRADE[ratio] && (
+        <div style={{ fontSize: "0.6rem", color: P.cyan, background: "rgba(74,222,222,0.07)", padding: "5px 8px", borderRadius: "4px", lineHeight: 1.5, marginBottom: "4px" }}>
+          Mobile uses {MOBILE_DOWNGRADE[ratio]} ({RATIOS[MOBILE_DOWNGRADE[ratio]]})
+        </div>
+      )}
+
+      <Divider />
+
+      {/* Base Size */}
+      <SideLabel>Base Size: {effectiveBase}px{device === "mobile" && baseSize !== effectiveBase ? ` (↑${baseSize}px desktop)` : ""}</SideLabel>
+      <input type="range" min="14" max="20" step="1" value={baseSize}
+        onChange={e => setBaseSize(Number(e.target.value))}
+        style={{ width: "100%", accentColor: P.cyan, marginBottom: "4px" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.56rem", color: P.light, marginBottom: "4px" }}>
+        <span>14px</span>
+        <span style={{ color: effectiveBase < 16 ? "#FFA500" : P.light }}>Min: 16px (WCAG)</span>
+        <span>20px</span>
+      </div>
+
+      <Divider />
+
+      {/* Line Height */}
+      <SideLabel>Line Height · {lh}</SideLabel>
+      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginBottom: lineHeight === "custom" ? "6px" : "0" }}>
+        {["tight","normal","relaxed","custom"].map(o => (
+          <PresetBtn key={o} value={o} current={lineHeight} onClick={() => setLineHeight(o)} />
+        ))}
+      </div>
+      {lineHeight === "custom" && (
+        <input type="number" step="0.05" min="1" max="3" value={customLH}
+          onChange={e => setCustomLH(Number(e.target.value))}
+          style={{ marginTop: "6px", width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #1E2D50", background: "#0a1940", color: P.offWhite, fontSize: "0.78rem" }} />
+      )}
+
+      <Divider />
+
+      {/* Letter Spacing */}
+      <SideLabel>Letter Spacing</SideLabel>
+      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginBottom: letterSpacing === "custom" ? "6px" : "0" }}>
+        {["tight","normal","loose","custom"].map(o => (
+          <PresetBtn key={o} value={o} current={letterSpacing} onClick={() => setLetterSpacing(o)} />
+        ))}
+      </div>
+      {letterSpacing === "custom" && (
+        <input type="number" step="0.005" min="-0.05" max="0.2" value={customLS}
+          onChange={e => setCustomLS(Number(e.target.value))}
+          style={{ marginTop: "6px", width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #1E2D50", background: "#0a1940", color: P.offWhite, fontSize: "0.78rem" }} />
+      )}
+
+      <Divider />
+
+      {/* Fluid */}
+      <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", cursor: "pointer", marginBottom: "4px" }}>
+        <input type="checkbox" checked={fluid} onChange={e => setFluid(e.target.checked)}
+          style={{ accentColor: P.cyan, width: "14px", height: "14px", marginTop: "2px", flexShrink: 0 }} />
+        <div>
+          <div style={{ fontSize: "0.73rem", color: P.offWhite, fontWeight: 500 }}>Fluid Typography</div>
+          <div style={{ fontSize: "0.58rem", color: P.light, lineHeight: 1.4 }}>CSS clamp() between 375px–1440px</div>
+        </div>
+      </label>
+
+      <Divider />
+
+      {/* Sign-off */}
+      <a href={`mailto:jodonnell@bgbgroup.com?subject=A11y Sign-Off — ${headingFont} / ${bodyFont}&body=Hi Jerlyn,%0A%0ARequesting accessibility sign-off:%0A%0AHeading: ${headingFont}%0ABody: ${bodyFont}%0ARatio: ${ratio}%0ABase: ${baseSize}px%0ALine Height: ${lh}%0ALetter Spacing: ${ls}%0ADevice: ${device}%0AFluid: ${fluid}`}
+        style={{
+          display: "block", padding: "9px", borderRadius: "7px", textAlign: "center",
+          background: P.purple, color: P.white, fontSize: "0.72rem", fontWeight: 700,
+          textDecoration: "none", marginBottom: "6px",
+        }}>
+        Request A11y Sign-Off
+      </a>
+      <div style={{ fontSize: "0.58rem", color: P.light, textAlign: "center", lineHeight: 1.5 }}>
+        jodonnell@bgbgroup.com
+      </div>
+    </aside>
+  );
+
+  /* ── Scale Tab ── */
+  const ScaleTab = () => (
+    <div style={{ maxWidth: device === "mobile" ? "375px" : "100%", margin: "0 auto" }}>
+      {/* Info bar */}
+      <div style={{ background: P.purple, padding: "8px 20px", display: "flex", gap: "14px", flexWrap: "wrap", alignItems: "center" }}>
+        {[
+          ["H", headingFont], ["B", bodyFont], ["R", `${effectiveRatio} · ${r}`],
+          ["⌀", `${effectiveBase}px`], ["LH", lh], ["LS", ls],
+        ].map(([k, v]) => (
+          <span key={k} style={{ fontSize: "0.66rem", color: P.light }}>
+            <span style={{ color: P.cyan, fontWeight: 700, marginRight: "3px" }}>{k}</span>{v}
+          </span>
+        ))}
+        {fluid && <Badge text="FLUID" color={P.navy} bg={P.cyan} />}
+        {!fontsReady && <Badge text="Loading fonts…" color={P.light} />}
+      </div>
+
+      <div style={{ padding: "20px 24px" }}>
+        {TYPE_LEVELS.map(level => {
+          const size = scale(level.steps);
+          const tooSmall = size < 11;
+          const warnSmall = size >= 11 && size < 12;
+          const family = level.isHeading
+            ? `'${headingFont}', Georgia, serif`
+            : `'${bodyFont}', system-ui, sans-serif`;
+
+          return (
+            <div key={level.name} style={{ marginBottom: "16px", paddingBottom: "16px", borderBottom: `1px solid ${darkMode ? "#1F2937" : "#EAEAEA"}` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px", gap: "8px" }}>
+                <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.56rem", color: subColor, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.07em" }}>{level.name}</span>
+                  {tooSmall && <Badge text="Below minimum" color="#EF4444" />}
+                  {warnSmall && <Badge text="Near minimum" color="#F59E0B" />}
+                </div>
+                <span style={{ fontSize: "0.56rem", color: subColor, fontFamily: "monospace", whiteSpace: "nowrap" }}>
+                  {size.toFixed(1)}px · {(size / 16).toFixed(3)}rem
+                  {fluid && level.steps > 0 && ` · clamp(${mobileScale(level.steps).toFixed(0)}–${desktopScale(level.steps).toFixed(0)}px)`}
+                </span>
+              </div>
+              <div style={{
+                fontFamily: family,
+                fontSize: `${size}px`,
+                lineHeight: level.isHeading && level.steps >= 2 ? 1.1 : lh,
+                letterSpacing: level.isHeading && level.steps >= 3 ? "-0.02em" : ls,
+                fontWeight: level.weight,
+                color: textColor,
+                overflow: level.steps > 3 ? "hidden" : "visible",
+                textOverflow: "ellipsis",
+                whiteSpace: level.steps > 3 ? "nowrap" : "normal",
+              }}>
+                {level.isHeading
+                  ? "The quick brown fox jumps over"
+                  : "The quick brown fox jumps over the lazy dog. Good typography guides without interfering."}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  /* ── Article Tab ── */
+  const ArticleTab = () => (
+    <div style={{ maxWidth: device === "mobile" ? "375px" : "720px", margin: "0 auto", padding: device === "mobile" ? "28px 20px" : "48px 40px" }}>
+      <div style={{
+        display: "inline-block", padding: "3px 10px", marginBottom: "20px",
+        background: `${P.purple}15`, color: P.purple, fontSize: "0.6rem",
+        fontWeight: 700, borderRadius: "4px", textTransform: "uppercase",
+        letterSpacing: "0.09em", fontFamily: `'${bodyFont}', sans-serif`,
+        border: `1px solid ${P.purple}28`,
+      }}>Article Preview</div>
+
+      <div style={{ fontFamily: `'${headingFont}', Georgia, serif`, fontSize: `${scale(4)}px`, lineHeight: 1.05, fontWeight: 700, color: textColor, marginBottom: "12px", letterSpacing: "-0.02em" }}>
+        Designing for Every Screen
+      </div>
+
+      <div style={{ fontFamily: `'${bodyFont}', system-ui, sans-serif`, fontSize: `${scale(-1)}px`, color: subColor, marginBottom: "24px", lineHeight: 1.5 }}>
+        By Jerlyn O'Donnell · March 2026 · 5 min read
+      </div>
+
+      <div style={{ fontFamily: `'${bodyFont}', system-ui, sans-serif`, fontSize: `${scale(0.5)}px`, lineHeight: lh, letterSpacing: ls, color: textColor, fontWeight: 500, marginBottom: "20px", maxWidth: "65ch" }}>
+        Typography is the backbone of every digital product. When selected thoughtfully, a type scale creates visual rhythm, guides attention, and communicates hierarchy without friction.
+      </div>
+
+      <div style={{ fontFamily: `'${bodyFont}', system-ui, sans-serif`, fontSize: `${scale(0)}px`, lineHeight: lh, letterSpacing: ls, color: textColor, marginBottom: "28px", maxWidth: "65ch" }}>
+        The pairing of <strong style={{ fontFamily: `'${headingFont}', serif` }}>{headingFont}</strong> with {bodyFont} at a {ratio} ratio ({r}) delivers a balanced system for both desktop and mobile contexts. The scale creates <em>{r > 1.3 ? "dramatic, expressive" : r > 1.2 ? "clear, confident" : "refined, subtle"}</em> contrast between levels.
+      </div>
+
+      <div style={{ fontFamily: `'${headingFont}', Georgia, serif`, fontSize: `${scale(2)}px`, fontWeight: 700, color: P.purple, lineHeight: 1.2, marginBottom: "12px" }}>
+        Why Ratio Matters
+      </div>
+
+      <div style={{ fontFamily: `'${bodyFont}', system-ui, sans-serif`, fontSize: `${scale(0)}px`, lineHeight: lh, letterSpacing: ls, color: textColor, marginBottom: "24px", maxWidth: "65ch" }}>
+        A ratio of <code style={{ background: darkMode ? "#1F2937" : "#F3F4F6", padding: "1px 5px", borderRadius: "3px", fontSize: "0.9em", fontFamily: "IBM Plex Mono, monospace" }}>{r}</code> means each level is {r}x larger than the one below. For mobile, the scale adjusts to {MOBILE_DOWNGRADE[ratio]} ({RATIOS[MOBILE_DOWNGRADE[ratio]]}) automatically.
+      </div>
+
+      <div style={{ padding: "18px 20px", background: darkMode ? "#1F2937" : `${P.purple}08`, borderLeft: `3px solid ${P.purple}`, borderRadius: "0 8px 8px 0", marginBottom: "28px" }}>
+        <div style={{ fontFamily: `'${bodyFont}', system-ui, sans-serif`, fontSize: `${scale(0)}px`, fontStyle: "italic", color: textColor, lineHeight: lh }}>
+          "Good typography is invisible. It guides without interfering, supports without distracting."
+        </div>
+      </div>
+
+      {/* WCAG Panel */}
+      <div style={{ background: darkMode ? "#0F172A" : P.offWhite, border: `1px solid ${darkMode ? "#1E2D50" : "#DEE2E6"}`, borderRadius: "10px", padding: "18px 20px" }}>
+        <div style={{ fontSize: "0.65rem", fontWeight: 800, color: P.purple, textTransform: "uppercase", letterSpacing: "0.09em", marginBottom: "12px", fontFamily: `'${bodyFont}', sans-serif` }}>WCAG AA Checklist</div>
+        {[
+          ["1.4.3 Contrast", "4.5:1 normal text, 3:1 large (18pt+)", true],
+          ["1.4.4 Resize Text", `${effectiveBase}px body supports 200% zoom`, effectiveBase >= 16],
+          ["1.4.10 Reflow", "No horizontal scroll at 320px", true],
+          ["1.4.12 Text Spacing", "Survives line-height / letter-spacing overrides", true],
+        ].map(([criterion, note, pass]) => (
+          <div key={criterion} style={{ display: "flex", gap: "10px", marginBottom: "8px", alignItems: "flex-start" }}>
+            <span style={{ color: pass ? "#22C55E" : "#F59E0B", fontSize: "0.8rem", flexShrink: 0, marginTop: "1px" }}>{pass ? "✓" : "!"}</span>
+            <div>
+              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: textColor, fontFamily: `'${bodyFont}', sans-serif` }}>{criterion}</span>
+              <span style={{ fontSize: "0.63rem", color: subColor, fontFamily: `'${bodyFont}', sans-serif` }}> — {note}</span>
+            </div>
+          </div>
+        ))}
+        <div style={{ marginTop: "12px", fontSize: "0.63rem", color: subColor, fontFamily: `'${bodyFont}', sans-serif` }}>
+          For accessibility sign-off, contact{" "}
+          <a href="mailto:jodonnell@bgbgroup.com" style={{ color: P.purple, textDecoration: "underline" }}>Jerlyn O'Donnell</a>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ── CSS Tab ── */
+  const CSSTab = () => (
+    <div style={{ padding: "24px", maxWidth: "900px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", gap: "12px" }}>
+        <div>
+          <div style={{ fontFamily: `'${headingFont}', serif`, color: P.purple, fontSize: "1.1rem", fontWeight: 700 }}>CSS Output</div>
+          <div style={{ fontSize: "0.63rem", color: P.mid, marginTop: "3px" }}>
+            {fluid ? "Fluid (clamp)" : "Static"} · {ratio} · {headingFont} / {bodyFont}
+          </div>
+        </div>
+        <button onClick={copyCSS} style={{
+          padding: "8px 16px", borderRadius: "6px",
+          border: `1px solid ${P.purple}`,
+          background: copied ? P.purple : "transparent",
+          color: copied ? P.white : P.purple,
+          fontSize: "0.73rem", cursor: "pointer", fontWeight: 700, whiteSpace: "nowrap",
+        }}>
+          {copied ? "Copied!" : "Copy CSS"}
+        </button>
+      </div>
+      <pre style={{
+        background: P.navy, color: P.cyan, padding: "20px", borderRadius: "10px",
+        overflow: "auto", fontSize: "0.69rem", lineHeight: 1.8, whiteSpace: "pre-wrap",
+        border: "1px solid #1a2a4a",
+      }}>{generateCSS()}</pre>
+      <div style={{ marginTop: "14px", padding: "12px 16px", background: `${P.purple}0C`, borderRadius: "8px", border: `1px solid ${P.purple}20` }}>
+        <div style={{ fontSize: "0.63rem", color: P.mid, lineHeight: 1.7 }}>
+          <strong style={{ color: P.dark }}>Figma setup:</strong> Install the Google Fonts plugin. Create Text Styles for each level. Add Figma Variables for token values (rem, line-height, letter-spacing). Link Variables to Text Styles via the Typography panel. Test frames at 375px, 768px, and 1440px.
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ── Render ── */
+  const TabBtn = ({ id, label }) => (
+    <button onClick={() => setTab(id)} style={{
+      padding: "6px 13px", borderRadius: "6px", border: "none", cursor: "pointer",
+      fontSize: "0.71rem", fontWeight: 600, transition: "all 0.15s",
+      background: tab === id ? P.cyan : "rgba(255,255,255,0.08)",
+      color: tab === id ? P.navy : P.light,
+    }}>{label}</button>
+  );
+
+  const SegBtn = ({ val, label, cur, set }) => (
+    <button onClick={() => set(val)} style={{
+      padding: "5px 11px", borderRadius: "5px", border: "none", cursor: "pointer",
+      fontSize: "0.69rem", fontWeight: 600,
+      background: cur === val ? P.cyan : "rgba(255,255,255,0.08)",
+      color: cur === val ? P.navy : P.light,
+    }}>{label}</button>
+  );
+
+  return (
+    <div style={{ fontFamily: `'${bodyFont}', sans-serif`, background: P.navy, height: "100vh", display: "flex", flexDirection: "column" }}>
+
+      {/* Header */}
+      <header style={{
+        background: P.purple, padding: "8px 16px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        gap: "10px", flexShrink: 0, flexWrap: "wrap",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* Mobile sidebar toggle */}
+          <button onClick={() => setSidebarOpen(o => !o)} style={{
+            display: "none", padding: "5px 8px", borderRadius: "5px",
+            border: "1px solid rgba(255,255,255,0.2)", background: "transparent",
+            color: P.white, cursor: "pointer", fontSize: "0.9rem",
+            // shown only on small screens via inline class trick
+          }} id="sidebar-toggle">☰</button>
+          <div style={{
+            background: P.cyan, color: P.navy, width: "32px", height: "32px",
+            borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 900, fontSize: "1rem", fontFamily: `'${headingFont}', serif`, flexShrink: 0,
+          }}>T</div>
+          <div>
+            <div style={{ fontFamily: `'${headingFont}', serif`, fontWeight: 700, fontSize: "1rem", color: P.white, lineHeight: 1 }}>TypScale</div>
+            <div style={{ fontSize: "0.58rem", color: "#B39FD4", marginTop: "2px" }}>Font Pairing + Type Scale Generator</div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "3px" }}>
+            <TabBtn id="scale" label="Scale" />
+            <TabBtn id="article" label="Article" />
+            <TabBtn id="css" label="CSS" />
+          </div>
+          <div style={{ display: "flex", gap: "3px" }}>
+            <SegBtn val="desktop" label="Desktop" cur={device} set={setDevice} />
+            <SegBtn val="mobile" label="Mobile" cur={device} set={setDevice} />
+          </div>
+          <button onClick={() => setDarkMode(d => !d)} style={{
+            padding: "5px 10px", borderRadius: "5px",
+            border: "1px solid rgba(255,255,255,0.15)",
+            background: "transparent", color: P.light,
+            fontSize: "0.69rem", cursor: "pointer",
+          }}>{darkMode ? "Light" : "Dark"}</button>
+        </div>
+      </header>
+
+      {/* Body */}
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        <Sidebar />
+        <main style={{ flex: 1, overflowY: "auto", background: bg, transition: "background 0.25s" }}>
+          {tab === "scale"   && <ScaleTab />}
+          {tab === "article" && <ArticleTab />}
+          {tab === "css"     && <CSSTab />}
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer style={{
+        background: "#060f26", borderTop: "1px solid #1a2a4a",
+        padding: "6px 16px", display: "flex", justifyContent: "space-between",
+        alignItems: "center", flexShrink: 0, flexWrap: "wrap", gap: "6px",
+      }}>
+        <span style={{ fontSize: "0.58rem", color: P.light }}>
+          TypScale · Design Lady LLC · Built by{" "}
+          <a href="mailto:jodonnell@bgbgroup.com" style={{ color: P.cyan, textDecoration: "none" }}>Jerlyn O'Donnell</a>
+        </span>
+        <span style={{ fontSize: "0.58rem", color: "#1E3A5F" }}>
+          All fonts: Google Fonts · OFL License · WCAG AA
+        </span>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<TypScale />);
+</script>
+</body>
+</html>
