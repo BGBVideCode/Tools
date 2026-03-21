@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SceneForge Field Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple: #36069A;
+  --purple-mid: #5A2BB5;
+  --purple-light: #EDE8FB;
+  --pink: #DE6399;
+  --pink-light: #FBEEF4;
+  --dark: #020C28;
+  --teal: #4ADEDE;
+  --teal-dark: #0AADAD;
+  --teal-light: #E4FAFA;
+  --white: #FFFFFF;
+  --off-white: #F8F9FA;
+  --text: #0D1333;
+  --text-muted: #5A607A;
+  --text-soft: #8B91AB;
+  --border: #DDE0EE;
+  --border-strong: #B8BDD4;
+  --surface: #FFFFFF;
+  --surface-2: #F4F5FB;
+  --surface-3: #ECEEF8;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--off-white);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* -------- NAV -------- */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--dark);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 2px solid var(--purple);
+  height: 52px;
+}
+
+.nav-brand {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--teal);
+  letter-spacing: 0.08em;
+  margin-right: 2rem;
+  white-space: nowrap;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.nav-tab {
+  padding: 0 1.1rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.02em;
+  user-select: none;
+  text-decoration: none;
+}
+
+.nav-tab:hover { color: rgba(255,255,255,0.8); }
+.nav-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* -------- HERO -------- */
+.hero {
+  background: var(--dark);
+  padding: 3rem 2rem 2.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.hero-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--teal);
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 2px;
+  background: var(--teal);
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.7rem;
+}
+
+.hero h1 em {
+  font-style: normal;
+  color: var(--teal);
+}
+
+.hero p {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.5);
+  max-width: 580px;
+  line-height: 1.65;
+}
+
+/* -------- LAYOUT -------- */
+.page-wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 5rem;
+}
+
+/* -------- SECTION HEADER -------- */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.section-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--purple);
+  color: var(--white);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.section-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.section-note {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+section { margin-bottom: 3.5rem; }
+
+/* -------- SCHEMA TABLE -------- */
+.schema-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.75rem;
+}
+
+.schema-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.schema-card:hover {
+  border-color: var(--purple-mid);
+  box-shadow: 0 2px 12px rgba(54,6,154,0.08);
+}
+
+.schema-card-head {
+  background: var(--surface-2);
+  padding: 0.65rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.field-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--purple);
+}
+
+.field-required {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+
+.req-yes { background: rgba(54,6,154,0.1); color: var(--purple); }
+.req-export { background: rgba(74,222,222,0.15); color: var(--teal-dark); }
+
+.schema-card-body { padding: 0.75rem 0.9rem; }
+
+.field-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+  line-height: 1.5;
+}
+
+.field-example {
+  background: var(--surface-3);
+  border-left: 2.5px solid var(--teal-dark);
+  padding: 0.4rem 0.65rem;
+  border-radius: 0 4px 4px 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.ex-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal-dark);
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* -------- SHOT TYPE GRID -------- */
+.shot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.6rem;
+}
+
+.shot-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.shot-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--border-strong);
+  transition: background 0.15s;
+}
+
+.shot-card:hover { border-color: var(--purple-mid); background: var(--surface-2); }
+.shot-card:hover::before { background: var(--purple); }
+
+.shot-card.active { border-color: var(--purple); background: var(--purple-light); }
+.shot-card.active::before { background: var(--purple); }
+
+.shot-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--purple);
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+}
+
+.shot-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.shot-use {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* Detail panel */
+.shot-detail {
+  display: none;
+  background: var(--dark);
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  margin-top: 1rem;
+  color: var(--white);
+  animation: fadeSlide 0.2s ease;
+}
+
+.shot-detail.visible { display: block; }
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.detail-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  background: var(--purple);
+  color: var(--white);
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+.detail-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.detail-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 580px) { .detail-body { grid-template-columns: 1fr; } }
+
+.detail-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.35rem;
+}
+
+.detail-text {
+  font-size: 0.83rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.55;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.detail-tag {
+  font-size: 0.72rem;
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.65);
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-family: 'DM Mono', monospace;
+}
+
+.detail-prompt {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: rgba(74,222,222,0.85);
+  background: rgba(74,222,222,0.07);
+  border-left: 2px solid var(--teal);
+  padding: 0.5rem 0.7rem;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.5;
+  font-style: italic;
+  margin-top: 0.5rem;
+  grid-column: 1 / -1;
+}
+
+/* -------- MOOD + LIGHTING -------- */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+.vocab-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.vocab-panel-head {
+  background: var(--dark);
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.vocab-panel-head h3 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.01em;
+}
+
+.vocab-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vocab-icon.mood-icon { background: rgba(222,99,153,0.25); }
+.vocab-icon.light-icon { background: rgba(74,222,222,0.2); }
+
+.vocab-list { padding: 0.5rem 0; }
+
+.vocab-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+  cursor: default;
+}
+
+.vocab-item:last-child { border-bottom: none; }
+.vocab-item:hover { background: var(--surface-2); }
+
+.vocab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  margin-right: 0.65rem;
+  flex-shrink: 0;
+}
+
+.vocab-term {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 130px;
+}
+
+.vocab-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  flex: 1;
+}
+
+/* Lighting has color swatches */
+.light-swatch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* Mood tone tags */
+.tone-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.tone-tag {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+}
+
+/* -------- COPY BUTTON -------- */
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(54,6,154,0.08);
+  color: var(--purple);
+  border: 1px solid rgba(54,6,154,0.2);
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  transition: background 0.12s;
+  letter-spacing: 0.03em;
+}
+
+.copy-btn:hover { background: rgba(54,6,154,0.15); }
+.copy-btn.copied { background: rgba(10,173,173,0.1); color: var(--teal-dark); border-color: rgba(10,173,173,0.3); }
+
+/* -------- SECTION SPACER -------- */
+.section-spacer { height: 1px; background: var(--border); margin: 3rem 0; }
+
+/* -------- RESPONSIVE -------- */
+@media (max-width: 600px) {
+  .hero h1 { font-size: 1.7rem; }
+  nav { padding: 0 1rem; }
+  .page-wrap { padding: 1.5rem 1rem 4rem; }
+  .schema-grid { grid-template-columns: 1fr; }
+  .shot-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav aria-label="Section navigation">
+  <span class="nav-brand">SceneForge</span>
+  <div class="nav-tabs" role="tablist">
+    <a class="nav-tab active" href="#schema" role="tab">Scene Schema</a>
+    <a class="nav-tab" href="#shots" role="tab">Shot Types</a>
+    <a class="nav-tab" href="#mood-lighting" role="tab">Mood + Lighting</a>
+  </div>
+</nav>
+
+<div class="hero" role="banner">
+  <div class="hero-inner">
+    <div class="eyebrow">SceneForge Field Reference</div>
+    <h1>Script-to-scene<br><em>vocabulary</em></h1>
+    <p>Scene schema fields, shot type codes, and mood and lighting vocabulary for consistent storyboard output. Use with the SceneForge GPT.</p>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- SCENE SCHEMA -->
+  <section id="schema" aria-labelledby="schema-heading">
+    <div class="section-header">
+      <span class="section-tag">01</span>
+      <h2 id="schema-heading">Scene Schema</h2>
+    </div>
+    <p class="section-note">Every scene output from SceneForge maps to these fields. Required fields drive the Firefly prompt. Export fields populate the InDesign Data Merge CSV.</p>
+
+    <div class="schema-grid">
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Scene_Number</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Sequential scene identifier. Zero-padded to two digits so InDesign sorts correctly.</p>
+          <div class="field-example"><span class="ex-label">Example</span>01 / 02 / 03 ...</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Scene_Description</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">1-2 sentence narrative summary of the scene for human readers. Written in active voice.</p>
+          <div class="field-example"><span class="ex-label">Example</span>Dr. Chen pauses at the clinic entrance, her reflection caught in the glass door.</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Shot_Type</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Camera framing code (ECU, CU, MS, WS, etc.). Drives Firefly prompt prefix and slide layout.</p>
+          <div class="field-example"><span class="ex-label">Example</span>ECU</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Mood</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Emotional tone. Use 1-3 descriptors, separated by semicolons. These feed directly into the Firefly prompt atmosphere.</p>
+          <div class="field-example"><span class="ex-label">Example</span>tense; uncertain</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Lighting</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Specific lighting condition. Must match a term from the Lighting Vocabulary for Firefly consistency.</p>
+          <div class="field-example"><span class="ex-label">Example</span>Flat overcast; cool daylight</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Characters</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Names or descriptions of every person visible in the frame. Use descriptions only (not real names) for Firefly prompts.</p>
+          <div class="field-example"><span class="ex-label">Example</span>Dr. Maya Chen; Patient (male, 60s)</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Action</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">What is physically happening in the frame. Use present continuous tense for Firefly alignment.</p>
+          <div class="field-example"><span class="ex-label">Example</span>Pausing at glass door, looking at reflection</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Setting</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Location and environmental detail. Be specific: Firefly performs better with grounded spatial context.</p>
+          <div class="field-example"><span class="ex-label">Example</span>Urban medical clinic exterior, city street background</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Firefly_Prompt</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Full structured prompt using the SceneForge formula. Includes shot type, mood, subject, setting, lighting, palette, style, and aspect ratio.</p>
+          <div class="field-example"><span class="ex-label">Example</span>Extreme close-up, tense and uncertain, a woman in her 40s pausing at a glass door, urban clinic exterior, flat overcast daylight, cool grey tones, photorealistic cinematic, --ar 16:9</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Alt_Text</span>
+          <span class="field-required req-yes">Required</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Accessible image description for screen readers. Describe what is visible, not the intent. WCAG 2.1 AA compliant. Questions: jodonnell@bgbgroup.com</p>
+          <div class="field-example"><span class="ex-label">Example</span>Close-up of a woman pausing at a glass door, her reflection visible, overcast sky behind her.</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">Color_Palette</span>
+          <span class="field-required req-export">Export optional</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">2-3 hex values or descriptive color names for production continuity across scenes. Matches the Firefly prompt palette language.</p>
+          <div class="field-example"><span class="ex-label">Example</span>#2C3E50, #BDC3C7, #ECF0F1</div>
+        </div>
+      </div>
+
+      <div class="schema-card">
+        <div class="schema-card-head">
+          <span class="field-name">InDesign_Notes</span>
+          <span class="field-required req-export">Export optional</span>
+        </div>
+        <div class="schema-card-body">
+          <p class="field-desc">Layout or production notes for the InDesign operator. Not rendered in Firefly prompts or PPT slides.</p>
+          <div class="field-example"><span class="ex-label">Example</span>Frame with 3px bleed; caption below image</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="section-spacer"></div>
+
+  <!-- SHOT TYPES -->
+  <section id="shots" aria-labelledby="shots-heading">
+    <div class="section-header">
+      <span class="section-tag">02</span>
+      <h2 id="shots-heading">Shot Type Glossary</h2>
+    </div>
+    <p class="section-note">Click any shot type to see its Firefly prompt language, use context, and pharma advertising application notes.</p>
+
+    <div class="shot-grid" id="shot-grid" role="list">
+    </div>
+
+    <div class="shot-detail" id="shot-detail" role="region" aria-live="polite" aria-label="Shot type detail"></div>
+  </section>
+
+  <div class="section-spacer"></div>
+
+  <!-- MOOD + LIGHTING -->
+  <section id="mood-lighting" aria-labelledby="mood-heading">
+    <div class="section-header">
+      <span class="section-tag">03</span>
+      <h2 id="mood-heading">Mood + Lighting Vocabulary</h2>
+    </div>
+    <p class="section-note">Use exact terms from this list in the Mood and Lighting fields for consistent Firefly output across your storyboard.</p>
+
+    <div class="two-col">
+
+      <!-- MOOD -->
+      <div class="vocab-panel" aria-label="Mood vocabulary">
+        <div class="vocab-panel-head">
+          <div class="vocab-icon mood-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DE6399" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <h3>Mood</h3>
+        </div>
+        <div class="vocab-list" role="list">
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#E74C3C"></div>
+            <span class="vocab-term">Tense</span>
+            <span class="vocab-desc">Anticipation, threat, or conflict about to surface. High emotional pressure.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#F39C12"></div>
+            <span class="vocab-term">Urgent</span>
+            <span class="vocab-desc">Time pressure, crisis in motion. Characters in active problem-solving mode.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#3498DB"></div>
+            <span class="vocab-term">Hopeful</span>
+            <span class="vocab-desc">Forward momentum, possibility. Often follows a turning point scene.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#8E44AD"></div>
+            <span class="vocab-term">Melancholic</span>
+            <span class="vocab-desc">Quiet grief, loss, or longing. Slow and introspective in visual pace.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#2ECC71"></div>
+            <span class="vocab-term">Serene</span>
+            <span class="vocab-desc">Calm resolution. Often used for aftermath, reflection, or healing beats.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#1ABC9C"></div>
+            <span class="vocab-term">Contemplative</span>
+            <span class="vocab-desc">Interior thought, weighing a decision. Characters still but psychologically active.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#E67E22"></div>
+            <span class="vocab-term">Vulnerable</span>
+            <span class="vocab-desc">Exposed, unguarded. High in patient-facing pharma DTC narratives.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#C0392B"></div>
+            <span class="vocab-term">Ominous</span>
+            <span class="vocab-desc">Dread or foreboding without explicit threat visible in frame.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#2980B9"></div>
+            <span class="vocab-term">Confrontational</span>
+            <span class="vocab-desc">Two forces in direct opposition. Tension made visible through framing.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#27AE60"></div>
+            <span class="vocab-term">Triumphant</span>
+            <span class="vocab-desc">Achievement after difficulty. Used for resolution or campaign climax scenes.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#F1C40F"></div>
+            <span class="vocab-term">Joyful</span>
+            <span class="vocab-desc">Uncomplicated positive emotion. High energy, open body language.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="vocab-dot" style="background:#95A5A6"></div>
+            <span class="vocab-term">Disoriented</span>
+            <span class="vocab-desc">Confusion, overwhelm, or medical distress. Often paired with dutch angle shots.</span>
+          </div>
+        </div>
+        <div class="tone-row" aria-label="Combine moods with semicolons">
+          <span style="font-size:0.7rem;color:var(--text-muted);font-family:'DM Mono',monospace;margin-right:0.3rem;">Combine:</span>
+          <span class="tone-tag" style="background:#FEF9E7;color:#7D6608;border-color:#F9E79F;">hopeful; apprehensive</span>
+          <span class="tone-tag" style="background:#EBF5FB;color:#154360;border-color:#AED6F1;">tense; resolute</span>
+          <span class="tone-tag" style="background:#F9EBEA;color:#641E16;border-color:#F1948A;">vulnerable; urgent</span>
+          <span class="tone-tag" style="background:#EAFAF1;color:#145A32;border-color:#A9DFBF;">serene; triumphant</span>
+        </div>
+      </div>
+
+      <!-- LIGHTING -->
+      <div class="vocab-panel" aria-label="Lighting vocabulary">
+        <div class="vocab-panel-head">
+          <div class="vocab-icon light-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADEDE" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </div>
+          <h3>Lighting</h3>
+        </div>
+        <div class="vocab-list" role="list">
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#F4A527,#F7D080)"></div>
+            <span class="vocab-term">Golden hour</span>
+            <span class="vocab-desc">Warm, directional, soft shadows. 60-90 min post-sunrise or pre-sunset. Emotional warmth.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#7EC8E3,#C7DDF5)"></div>
+            <span class="vocab-term">Magic hour</span>
+            <span class="vocab-desc">Blue-pink gradient sky, diffuse soft light. Cinematic and transitory. Reflective mood.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#B0B0B0,#F5F5F5)"></div>
+            <span class="vocab-term">Flat overcast</span>
+            <span class="vocab-desc">Even, shadow-free. Clinical or subdued scenes. Reduces drama; good for realism.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#1A1A2E,#FFFFFF)"></div>
+            <span class="vocab-term">Hard side-lit</span>
+            <span class="vocab-desc">Strong directional source creating deep shadows. Dramatic contrast. Conflict or revelation.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#FFEAA7,#FFFFFF)"></div>
+            <span class="vocab-term">Backlit / silhouette</span>
+            <span class="vocab-desc">Subject dark against bright background. Mystery, separation, or iconic moment.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#F5A623,#FDE68A)"></div>
+            <span class="vocab-term">Practical light</span>
+            <span class="vocab-desc">Motivated by in-scene sources (lamps, screens, windows). Intimate and naturalistic.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#FFFFFF,#FFFDE7)"></div>
+            <span class="vocab-term">High-key</span>
+            <span class="vocab-desc">Bright, minimal shadow, low contrast. Upbeat, commercial, or medical product scenes.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#0D0D0D,#4A4A4A)"></div>
+            <span class="vocab-term">Low-key / chiaroscuro</span>
+            <span class="vocab-desc">Dark field, isolated light. Moody and high-contrast. Used for diagnosis or decision scenes.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#E040FB,#00BCD4)"></div>
+            <span class="vocab-term">Neon-lit</span>
+            <span class="vocab-desc">Colorful city-night ambient. Urban environments, consumer health, or DTC brand scenes.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#B0C4DE,#E8F4FD)"></div>
+            <span class="vocab-term">Fluorescent / institutional</span>
+            <span class="vocab-desc">Cold, overhead, clinical. Hospitals, labs, pharmacies. Reinforces medical context.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#FFF9C4,#FFFDE7)"></div>
+            <span class="vocab-term">Soft window light</span>
+            <span class="vocab-desc">Indirect natural light diffused through glass. Warm and approachable. HCP office scenes.</span>
+          </div>
+          <div class="vocab-item" role="listitem">
+            <div class="light-swatch" style="background:linear-gradient(135deg,#E8D5C4,#FFF8F3)"></div>
+            <span class="vocab-term">Warm practical lamp</span>
+            <span class="vocab-desc">Incandescent or warm-tone source in-frame. Domestic comfort, patient home environments.</span>
+          </div>
+        </div>
+        <div class="tone-row" aria-label="Combine lighting for layered effects">
+          <span style="font-size:0.7rem;color:var(--text-muted);font-family:'DM Mono',monospace;margin-right:0.3rem;">Layer:</span>
+          <span class="tone-tag" style="background:#FEFAF0;color:#7D5A1E;border-color:#F0D78C;">warm practical lamp; soft window light</span>
+          <span class="tone-tag" style="background:#EEF8FF;color:#1A4A6E;border-color:#AED4EC;">fluorescent; cool daylight</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- end page-wrap -->
+
+<script>
+const shots = [
+  { code:'ECU', name:'Extreme Close-Up', use:'Emotion, detail, tension', firefly:'Extreme close-up,', context:'Subjects fill the entire frame — eyes, hands, objects. Forces emotional intimacy. Use for peak emotional moments or when a detail carries story weight.', pharma:'Patient reaction to diagnosis, hands holding medication, physician reviewing lab results.' },
+  { code:'CU', name:'Close-Up', use:'Character reaction, object focus', firefly:'Close-up,', context:'Head and shoulders. Most versatile emotional shot. Conveys interiority without losing spatial context entirely.', pharma:'HCP delivering news, patient listening intently, product detail.' },
+  { code:'MCU', name:'Medium Close-Up', use:'Dialogue, intimacy', firefly:'Medium close-up,', context:'From chest to top of head. Conversational framing — the default for two-person exchanges.', pharma:'Doctor-patient dialogue scenes, shared decision-making moments.' },
+  { code:'MS', name:'Medium Shot', use:'Character + immediate context', firefly:'Medium shot,', context:'Waist to head. Shows gesture and posture. Balances character and environment.', pharma:'HCP entering a room, patient at desk, product administration.' },
+  { code:'MLS', name:'Medium Long Shot', use:'Action with environment', firefly:'Medium long shot,', context:'Knees to head. Character action readable with setting present. Transitional or action beats.', pharma:'Patient walking in a clinic corridor, family group interaction.' },
+  { code:'LS', name:'Long Shot', use:'Full character in environment', firefly:'Long shot,', context:'Full body visible with surrounding environment. Establishes character in their world.', pharma:'Patient at home, HCP on hospital floor, caregiver in daily life.' },
+  { code:'ELS', name:'Extreme Long Shot', use:'Scale, isolation, establishing', firefly:'Extreme long shot,', context:'Character is small relative to environment. Communicates isolation, scale, or journey.', pharma:'Patient arriving at a hospital, city health landscape, DTC brand world-building.' },
+  { code:'WS', name:'Wide Shot', use:'Full scene geography', firefly:'Wide shot,', context:'Shows the full spatial layout of a scene. Used to orient the viewer before cutting to closer coverage.', pharma:'Clinical settings, group scenes, waiting rooms.' },
+  { code:'OTS', name:'Over-the-Shoulder', use:'Conversation, point of view', firefly:'Over-the-shoulder shot,', context:'Camera behind one character looking at another. Grounds the viewer in a two-person relationship.', pharma:'HCP facing patient, shared screen review, any consultation dynamic.' },
+  { code:'POV', name:'Point of View', use:'First-person perspective', firefly:'Point of view shot,', context:'Camera positioned where the character\'s eyes would be. Implicates the viewer directly.', pharma:'Patient reading a prescription label, looking at a physician, using a device.' },
+  { code:'AERIAL', name:'Aerial / Bird\'s Eye', use:'Overview, scale, surveillance', firefly:'Aerial shot, bird\'s-eye view,', context:'Camera directly above, or at high angle. Removes emotional identification. Creates objectivity or isolation.', pharma:'Hospital campus, city health geography, large-scale data visualization scenes.' },
+  { code:'LOW', name:'Low Angle', use:'Power, dominance', firefly:'Low angle shot,', context:'Camera below eye level shooting upward. Makes subjects appear imposing, powerful, or threatening.', pharma:'Authoritative HCP framing, symptom personification in DTC.' },
+  { code:'HIGH', name:'High Angle', use:'Vulnerability, smallness', firefly:'High angle shot,', context:'Camera above eye level shooting downward. Reduces perceived power of subject.', pharma:'Patient in hospital bed, vulnerable moments, isolation.' },
+  { code:'DUTCH', name:'Dutch Angle', use:'Disorientation, unease', firefly:'Dutch angle, tilted frame,', context:'Camera tilted on its axis. Creates psychological unease or disorientation without explicit action.', pharma:'Disease onset, diagnosis moment, side-effect awareness scenes.' },
+  { code:'INSERT', name:'Insert Shot', use:'Detail cut-in', firefly:'Insert shot, detail,', context:'A close cutaway to a specific object or detail within a scene. Does not change the overall camera position.', pharma:'Medication bottle, hand holding a device, lab result printout.' }
+];
+
+const grid = document.getElementById('shot-grid');
+const detail = document.getElementById('shot-detail');
+let activeCode = null;
+
+shots.forEach(s => {
+  const card = document.createElement('div');
+  card.className = 'shot-card';
+  card.setAttribute('role', 'listitem');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label', `${s.code}: ${s.name}. ${s.use}.`);
+  card.innerHTML = `
+    <div class="shot-code">${s.code}</div>
+    <div class="shot-name">${s.name}</div>
+    <div class="shot-use">${s.use}</div>
+  `;
+  card.addEventListener('click', () => toggleDetail(s, card));
+  card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetail(s, card); } });
+  grid.appendChild(card);
+});
+
+function toggleDetail(s, card) {
+  const allCards = grid.querySelectorAll('.shot-card');
+
+  if (activeCode === s.code) {
+    detail.classList.remove('visible');
+    detail.innerHTML = '';
+    card.classList.remove('active');
+    activeCode = null;
+    return;
+  }
+
+  allCards.forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  activeCode = s.code;
+
+  detail.innerHTML = `
+    <div class="detail-header">
+      <span class="detail-code">${s.code}</span>
+      <span class="detail-name">${s.name}</span>
+    </div>
+    <div class="detail-body">
+      <div>
+        <div class="detail-section-label">When to use</div>
+        <p class="detail-text">${s.context}</p>
+      </div>
+      <div>
+        <div class="detail-section-label">Pharma advertising application</div>
+        <p class="detail-text">${s.pharma}</p>
+      </div>
+      <div class="detail-prompt">${s.firefly} [mood], [subject + action], [setting], [lighting], [style], --ar 16:9</div>
+    </div>
+  `;
+  detail.classList.add('visible');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Nav tab highlighting on scroll
+const sections = document.querySelectorAll('section[id]');
+const navTabs = document.querySelectorAll('.nav-tab');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navTabs.forEach(t => t.classList.remove('active'));
+      const active = document.querySelector(`.nav-tab[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
