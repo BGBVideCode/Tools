@@ -430,10 +430,10 @@
 </main>
 
 <footer>
-  <strong>SceneForge</strong> &mdash; Built for BGB by <strong>Design Lady</strong> &bull; Paste GPT output, export assets &bull; Accessibility questions: <a href="mailto:jodonnell@bgbgroup.com" style="color: var(--teal);">jodonnell@bgbgroup.com</a>
+  <strong>SceneForge</strong> &mdash; Built for <strong>Design Lady LLC</strong> &bull; Paste GPT output, export assets &bull; Accessibility questions: <a href="/cdn-cgi/l/email-protection#f69c9992999898939a9ab69491949184998386d895999b" style="color: var(--teal);"><span class="__cf_email__" data-cfemail="751f1a111a1b1b1019193517121712071a00055b161a18">[email&#160;protected]</span></a>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   const COLS = {
     scene: ['scene', 'scene_number', 'scene number', '#', 'no'],
     description: ['description', 'scene_description', 'scene description', 'desc'],
@@ -460,13 +460,33 @@
     return keys.some(k => n.includes(k));
   }
 
+  function splitRow(line) {
+    // Handles both | a | b | c | and a | b | c formats
+    let s = line.trim();
+    if (s.startsWith('|')) s = s.slice(1);
+    if (s.endsWith('|')) s = s.slice(0, -1);
+    return s.split('|').map(c => c.trim());
+  }
+
+  function isSeparatorRow(line) {
+    // Matches |---|, | --- |, |:---:|, |-----|, etc.
+    const cells = splitRow(line);
+    return cells.length > 0 && cells.every(c => /^:?-+:?$/.test(c.replace(/\s/g, '')));
+  }
+
   function parseMarkdownTable(raw) {
-    const lines = raw.trim().split('\n').filter(l => l.trim().startsWith('|'));
-    if (lines.length < 2) return null;
+    // Strip code fences ChatGPT sometimes wraps tables in
+    let cleaned = raw.trim().replace(/^```[a-z]*\n?/i, '').replace(/\n?```\s*$/, '');
 
-    const headers = lines[0].split('|').map(h => h.trim()).filter(Boolean);
-    const dataLines = lines.slice(1).filter(l => !/^\|[-: |]+\|$/.test(l.trim()));
+    // Accept lines that contain at least one | (handles both leading-| and no-leading-| formats)
+    const lines = cleaned.split('\n').filter(l => l.includes('|') && l.trim() !== '');
+    if (lines.length < 2) return { scenes: null, diagnostic: `Found ${lines.length} pipe-separated line(s) — need at least 2 (header + one data row).` };
 
+    // First non-separator line is the header
+    const headerLine = lines[0];
+    if (isSeparatorRow(headerLine)) return { scenes: null, diagnostic: 'First pipe-containing line looks like a separator row, not a header.' };
+
+    const headers = splitRow(headerLine);
     const colMap = {};
     headers.forEach((h, i) => {
       for (const [key, aliases] of Object.entries(COLS)) {
@@ -474,16 +494,16 @@
       }
     });
 
-    if (colMap.description === undefined && colMap.prompt === undefined) return null;
+    if (colMap.description === undefined && colMap.prompt === undefined) {
+      return { scenes: null, diagnostic: `Headers detected: [${headers.join(' | ')}]. Could not find a "Description" or "Firefly Prompt" column. Check column names match the SceneForge schema.` };
+    }
 
-    return dataLines.map((line, rowIdx) => {
-      const cells = line.split('|').map(c => c.trim()).filter((_, i, arr) => {
-        if (i === 0 && line.startsWith('|')) return false;
-        return true;
-      });
+    const dataLines = lines.slice(1).filter(l => !isSeparatorRow(l));
+    if (dataLines.length === 0) return { scenes: null, diagnostic: 'Header found but no data rows detected after the separator.' };
 
+    const parsed = dataLines.map((line, rowIdx) => {
+      const cells = splitRow(line);
       const get = key => (colMap[key] !== undefined ? (cells[colMap[key]] || '').trim() : '');
-
       return {
         scene: get('scene') || String(rowIdx + 1).padStart(2, '0'),
         description: get('description'),
@@ -499,6 +519,8 @@
         notes: get('notes')
       };
     }).filter(s => s.description || s.prompt);
+
+    return { scenes: parsed, diagnostic: null };
   }
 
   function showStatus(id, msg, isError) {
@@ -519,9 +541,9 @@
       return;
     }
 
-    const parsed = parseMarkdownTable(raw);
+    const { scenes: parsed, diagnostic } = parseMarkdownTable(raw);
     if (!parsed || parsed.length === 0) {
-      showStatus('status', 'Could not parse table. Make sure it has a header row starting with | and pipe-separated columns.', true);
+      showStatus('status', diagnostic || 'Could not parse table. Make sure the output includes a header row and at least one data row with pipe-separated columns.', true);
       return;
     }
 
@@ -797,9 +819,4 @@
 | 02 | Waiting room — patients seated; ambient anxiety in body language. | WS | anxious; subdued | Fluorescent overhead; institutional | Unnamed patients | Seated in rows; some avoiding eye contact | Hospital waiting room with plastic chairs | Wide shot, anxious and subdued, diverse patients in plastic chairs avoiding eye contact, sterile hospital waiting room, harsh fluorescent overhead lighting, muted blue-grey palette, photorealistic, --ar 16:9 | Wide view of a hospital waiting room with patients seated in rows under fluorescent lights. |
 | 03 | Dr. Chen enters the consultation room; patient looks up with hope. | MS | hopeful; apprehensive | Warm practical lamp; soft window light | Dr. Maya Chen; Patient (male 60s) | Dr. Chen enters and makes eye contact with seated patient | Small consultation room with desk and diplomas | Medium shot, hopeful yet apprehensive, a female doctor entering a consultation room making eye contact with elderly male patient, warm lamp and soft window light, amber and cream tones, photorealistic cinematic, --ar 16:9 | A female doctor enters a consultation room; an elderly male patient looks up with a hopeful expression. |
 | 04 | Close-up on patient's hands gripping the edge of the chair — anticipation. | INSERT | vulnerable; still | Soft diffuse overhead | Patient (hands only) | Fingers tighten on chair edge | Chair armrest; edge of medical table | Insert shot, vulnerable and still, elderly hands gripping the edge of a medical chair, soft diffuse overhead lighting, warm neutral tones, photorealistic, --ar 16:9 | Close-up of elderly hands tightly gripping the armrest of a medical chair. |
-| 05 | Dr. Chen delivers results — quiet resolve on her face. | CU | resolute; calm | Soft window light; warm rim | Dr. Maya Chen | Meets patient's gaze; slight nod | Consultation room; out-of-focus diplomas in background | Close-up, resolute and calm, a female doctor delivering results with quiet strength, soft window light and warm rim lighting, warm skin tones, photorealistic cinematic, --ar 16:9 | Close-up of Dr. Maya Chen's face showing calm resolve as she delivers medical results. |`;
-    parseInput();
-  }
-</script>
-</body>
-</html>
+| 05 | Dr. Chen delivers results — quiet resolve on her face. | CU | resolute; calm | Soft window light; warm rim | Dr. Maya Chen | Meets patient's gaze; slight nod | Consultation room; out-of-focus diplomas in background | Close-up, resolute and calm, a female doctor delivering results with qu
